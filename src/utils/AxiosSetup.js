@@ -6,8 +6,8 @@ import axios from "axios";
 const instanceAxios = axios.create({
   baseURL: "https://localhost:7015/api/",
   headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
+    accept: "application/json",
+    "content-type": "application/json",
   },
   responseType: "json",
   // XSRF-TOKEN : will be not working, because it's false
@@ -24,6 +24,8 @@ instanceAxios.interceptors.request.use(
       console.log("Axois", data["token"]);
 
       config.headers.Authorization = `Bearer ${data["token"]}`;
+    } else {
+      console.log("Please redirect");
     }
 
     return config;
@@ -56,7 +58,7 @@ instanceAxios.interceptors.response.use(
 
       if (response?.status === 401) {
         // UnAuthorized, LogOut
-        // c("Please Login Again", false, "error");
+        console.log("Please Login Again", response);
       }
     }
 

@@ -3,6 +3,7 @@ import menu from "./MenuData";
 import { NavLink, Link } from "react-router-dom";
 import Icon from "../../components/icon/Icon";
 import classNames from "classnames";
+import { can } from "../../utils/Utils";
 
 const MenuHeading = ({ heading }) => {
   return (
@@ -278,31 +279,39 @@ const Menu = ({ sidebarToggle, mobileView }) => {
         item.heading ? (
           <MenuHeading heading={item.heading} key={item.heading} />
         ) : item.panel ? (
-          <PanelItem
-            key={item.text}
-            link={item.link}
-            icon={item.icon}
-            text={item.text}
-            index={index}
-            panel={item.panel}
-            subPanel={item.subPanel}
-            data={data}
-            setMenuData={setMenuData}
-            sidebarToggle={sidebarToggle}
-          />
+          <>
+            {can(item?.allowedRole) && (
+              <PanelItem
+                key={item.text}
+                link={item.link}
+                icon={item.icon}
+                text={item.text}
+                index={index}
+                panel={item.panel}
+                subPanel={item.subPanel}
+                data={data}
+                setMenuData={setMenuData}
+                sidebarToggle={sidebarToggle}
+              />
+            )}
+          </>
         ) : (
-          <MenuItem
-            key={item.text}
-            link={item.link}
-            icon={item.icon}
-            text={item.text}
-            sub={item.subMenu}
-            badge={item.badge}
-            panel={item.panel}
-            subPanel={item.subPanel}
-            sidebarToggle={sidebarToggle}
-            mobileView={mobileView}
-          />
+          <>
+            {can(item?.allowedRole) && (
+              <MenuItem
+                key={item.text}
+                link={item.link}
+                icon={item.icon}
+                text={item.text}
+                sub={item.subMenu}
+                badge={item.badge}
+                panel={item.panel}
+                subPanel={item.subPanel}
+                sidebarToggle={sidebarToggle}
+                mobileView={mobileView}
+              />
+            )}
+          </>
         )
       )}
     </ul>

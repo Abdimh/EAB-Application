@@ -91,13 +91,13 @@ import OrderDefault from "../pages/pre-built/orders/OrderDefault";
 import OrderRegular from "../pages/pre-built/orders/OrderRegular";
 import OrderSales from "../pages/pre-built/orders/OrderSales";
 import KycListRegular from "../pages/pre-built/kyc-list-regular/KycListRegular";
-import KycDetailsRegular from "../pages/pre-built/kyc-list-regular/kycDetailsRegular";
+import ApplicationAttachments from "../pages/pre-built/kyc-list-regular/Applicationdetails";
 import ProductCard from "../pages/pre-built/Applications/ProductCard";
 import ApplicationsList from "../pages/pre-built/Applications/ApplicationsList";
 import ProductDetails from "../pages/pre-built/Applications/ProductDetails";
 import individualinvestments from "../pages/pre-built/Investments/individualinvestments";
 import businessinvestmentList from "../pages/pre-built/Investments/Businessinvestments";
-import InvoiceDetails from "../pages/pre-built/Investments/InvoiceDetails";
+import ApplcationDetails from "../pages/pre-built/Investments/ApplicationDetails";
 import BusinessDetails from "../pages/pre-built/Investments/BusinessDetails";
 import PricingTable from "../pages/pre-built/pricing-table/PricingTable";
 import GalleryPreview from "../pages/pre-built/gallery/GalleryCardPreview";
@@ -114,7 +114,9 @@ import QuillPreview from "../pages/components/forms/rich-editor/QuillPreview";
 import TinymcePreview from "../pages/components/forms/rich-editor/TinymcePreview";
 import KnobPreview from "../pages/components/charts/KnobPreview";
 import { FileManagerContextProvider } from "../pages/app/file-manager/FileManagerContext";
+import PrivateRoute from "./PrivateRoute";
 
+import data from "../pages/pre-built/Investments/data";
 const Pages = () => {
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -189,7 +191,11 @@ const Pages = () => {
         <Route exact path={`${process.env.PUBLIC_URL}/order-list-regular`} component={OrderRegular}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/order-list-sales`} component={OrderSales}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/kyc-list-regular/:id`} component={KycListRegular}></Route>
-        <Route exact path={`${process.env.PUBLIC_URL}/kyc-details-regular/:id`} component={KycDetailsRegular}></Route>
+        <Route
+          exact
+          path={`${process.env.PUBLIC_URL}/application-attachments/:id`}
+          component={ApplicationAttachments}
+        ></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/applications-list`} component={ApplicationsList}></Route>
 
         <Route // context api added
@@ -215,8 +221,9 @@ const Pages = () => {
           path={`${process.env.PUBLIC_URL}/individual-investments`}
           component={individualinvestments}
         ></Route>
-        <Route exact path={`${process.env.PUBLIC_URL}/business-investments`} component={businessinvestmentList}></Route>
-        <Route exact path={`${process.env.PUBLIC_URL}/invoice-details/:id`} component={InvoiceDetails}></Route>
+
+        <Route path={`${process.env.PUBLIC_URL}/business-investments`} component={businessinvestmentList}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/application-details/:id`} component={ApplcationDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/business-details/:id`} component={BusinessDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pricing-table`} component={PricingTable}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/image-gallery`} component={GalleryPreview}></Route>

@@ -36,7 +36,7 @@ const Homepage = () => {
           <BlockBetween>
             <BlockHeadContent>
               <BlockTitle page tag="h3">
-                Dashboard
+                Dashboards
               </BlockTitle>
             </BlockHeadContent>
             <BlockHeadContent>
@@ -54,7 +54,7 @@ const Homepage = () => {
                         <DropdownToggle tag="a" className="dropdown-toggle btn btn-white btn-dim btn-outline-light">
                           <Icon className="d-none d-sm-inline" name="calender-date" />
                           <span>
-                            <span className="d-none d-md-inline">Last</span> 30 Days
+                            <span className="d-none d-md-inline">Lasts</span> 30 Days
                           </span>
                           <Icon className="dd-indc" name="chevron-right" />
                         </DropdownToggle>

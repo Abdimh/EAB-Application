@@ -156,3 +156,31 @@ export const bulkActionOptions = [
   { value: "suspend", label: "Suspend User" },
   { value: "delete", label: "Delete User" },
 ];
+
+export function isNullOrUndefOrEmpty(value) {
+  return value === undefined || value === null || value === "";
+}
+
+/**
+ * Check the Permission that You passed If The User Have Or not
+ * @param {String}  {String[]}
+ * @return {boolean}
+ */
+
+export const can = (role) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  var check = false;
+
+  // only one role
+  if (!isNullOrUndefOrEmpty(role)) check = user?.role?.name === role ? true : false;
+
+  // list of role
+  if (!isNullOrUndefOrEmpty(role) && Array.isArray(role)) check = role.includes(user?.role?.name ?? "") ? true : false;
+
+  return check;
+};
+
+export default function isNullOrUndef(value) {
+  return value === undefined || value === null;
+}

@@ -35,6 +35,7 @@ import axios, { AxiosError, isAxiosError } from "axios";
 import instanceAxios from "../../../utils/AxiosSetup";
 import { useForm } from "react-hook-form";
 import { CustomToast } from "../../../utils/CustomToast";
+import { red } from "@mui/material/colors";
 const InvoiceDetails = ({ match }) => {
   const userId = match.params.id;
   const [data] = useState(invoiceData);
@@ -80,6 +81,7 @@ const InvoiceDetails = ({ match }) => {
   });
   const getApp = async () => {
     const id = match.params.id;
+
     try {
       const Endpoint = `FullApplications/${id}`;
       const data = await instanceAxios.get(Endpoint);
@@ -93,34 +95,34 @@ const InvoiceDetails = ({ match }) => {
   const fetchdata = () => {
     const data = JSON.parse(localStorage.getItem("user"));
     setUserDetails(data);
-    console.log(data);
+    // console.log(data);
   };
 
   // submit function to add a new item
   const onFormSubmit = async (submitData) => {
     const appid = match.params.id;
     const { id, CA, status } = submitData;
-    console.log(submitData);
+    console.log(user);
     try {
       const RoleRes = await instanceAxios.put("IndividualApp/UpdateCA", {
-        id: userId,
-        status: user.status,
-        customerid: user.customerid,
-        purpose: user.purpose,
-        amount: user.amount,
-        tenure: user.tenure,
-        contribution: user.contribution,
-        profitrate: user.profitrate,
-        profitamount: user.profitamount,
-        totalamount: user.totalamount,
-        monthlyinstallment: user.monthlyinstallment,
-        securitydetails: user.securitydetails,
-        securitydescription: user.securitydescription,
-        sourceofpayment: user.sourceofpayment,
-        value: user.value,
-        condition: user.condition,
-        RM: user.RM,
-        ca: CA,
+        applicationid: user.application.id,
+        status: "Recommend",
+        customerid: user.customer.id,
+        purpose: user.application.purpose,
+        amount: user.application.amount,
+        tenure: user.application.tenure,
+        contribution: user.application.contribution,
+        profitrate: user.application.profitrate,
+        profitamount: user.application.profitamount,
+        totalamount: user.application.totalamount,
+        monthlyinstallment: user.application.monthlyinstallment,
+        securitydetails: user.application.securitydetails,
+        securitydescription: user.application.securitydescription,
+        sourceofpayment: user.application.sourceofpayment,
+        value: user.application.value,
+        condition: user.application.condition,
+        RM: user.application.RM,
+        ca: user.applicationCA,
       });
 
       const { data } = RoleRes;
@@ -151,30 +153,30 @@ const InvoiceDetails = ({ match }) => {
     console.log(submitData);
     try {
       const RoleRes = await instanceAxios.put("IndividualApp", {
-        id: userId,
+        applicationid: user.application.id,
         status: status,
-        customerid: user.customerid,
-        purpose: user.purpose,
-        amount: user.amount,
-        tenure: user.tenure,
-        contribution: user.contribution,
-        profitrate: user.profitrate,
-        profitamount: user.profitamount,
-        totalamount: user.totalamount,
-        monthlyinstallment: user.monthlyinstallment,
-        securitydetails: user.securitydetails,
-        securitydescription: user.securitydescription,
-        sourceofpayment: user.sourceofpayment,
-        value: user.value,
-        condition: user.condition,
-        RM: user.RM,
-        ca: user.CA,
+        customerid: user.customer.id,
+        purpose: user.application.purpose,
+        amount: user.application.amount,
+        tenure: user.application.tenure,
+        contribution: user.application.contribution,
+        profitrate: user.application.profitrate,
+        profitamount: user.application.profitamount,
+        totalamount: user.application.totalamount,
+        monthlyinstallment: user.application.monthlyinstallment,
+        securitydetails: user.application.securitydetails,
+        securitydescription: user.application.securitydescription,
+        sourceofpayment: user.application.sourceofpayment,
+        value: user.application.value,
+        condition: user.application.condition,
+        RM: user.application.RM,
+        ca: user.applicationCA,
       });
 
       const { data } = RoleRes;
       // 200 Data
 
-      if (data.id) CustomToast("Successfully Added", false, "success");
+      CustomToast("Transfered Application", false, "success");
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -249,22 +251,25 @@ const InvoiceDetails = ({ match }) => {
                 <BlockDes className="text-soft">
                   <ul className="list-inline">
                     <li>
-                      Created by: <span className="text-base">{user.createdby}</span>
+                      Created by: <span className="text-base">{user.application.createdby}</span>
                     </li>
                   </ul>
                 </BlockDes>
               </BlockHeadContent>
               <BlockHeadContent>
-                <Link to={`${process.env.PUBLIC_URL}/kyc-details-regular/${user.id}`}>
+                <Link to={`${process.env.PUBLIC_URL}/application-attachments/${user.application.id}`}>
                   <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
                     <Icon name="file-download"></Icon>
                     <span>Attached & Application Details</span>
                   </Button>
+                </Link>
+                <Link to={`${process.env.PUBLIC_URL}/individual-investments`}>
                   <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
                     <Icon name="arrow-left"></Icon>
                     <span>Back</span>
                   </Button>
                 </Link>
+
                 <Link to={`${process.env.PUBLIC_URL}/invoice-list`}>
                   <Button color="light" outline className="btn-icon bg-white d-inline-flex d-sm-none">
                     <Icon name="arrow-left"></Icon>
@@ -312,7 +317,7 @@ const InvoiceDetails = ({ match }) => {
                 )}
                 <br />
                 <br />
-                <Link to={`${process.env.PUBLIC_URL}/invoice-print/${user.id}`} target="_blank">
+                <Link to={`${process.env.PUBLIC_URL}/invoice-print/${user.application.id}`} target="_blank">
                   <Button size="lg" color="primary" outline className="btn-icon btn-white btn-dim">
                     <Icon name="printer-fill"></Icon>
                   </Button>
@@ -327,19 +332,15 @@ const InvoiceDetails = ({ match }) => {
                   <div className="invoice-contact">
                     <span className="overline-title">Application To</span>
                     <div className="invoice-contact-info">
-                      <h4 className="title">{user.customername}</h4>
+                      <h4 className="title">Wubshet Tadesse Maleku</h4>
                       <ul className="list-plain">
                         <li>
                           <Icon name="map-pin-fill"></Icon>
-                          <span>
-                            {user.homeaddress}
-                            <br />
-                            {user.citizenship}
-                          </span>
+                          <span>Djibouti</span>
                         </li>
                         <li>
                           <Icon name="call-fill"></Icon>
-                          <span>{user.mobile}</span>
+                          4416253
                         </li>
                       </ul>
                     </div>
@@ -348,10 +349,10 @@ const InvoiceDetails = ({ match }) => {
                     <h3 className="title">Application</h3>
                     <ul className="list-plain">
                       <li className="invoice-id">
-                        <span>Application ID</span>:<span>{user.id}</span>
+                        <span>Application ID</span>:<span>{user.application?.id}</span>
                       </li>
                       <li className="invoice-date">
-                        <span>Date</span>:<span>{user.createddate}</span>
+                        <span>Date</span>:<span>{user.application?.createddate}</span>
                       </li>
                     </ul>
                   </div>
@@ -359,116 +360,103 @@ const InvoiceDetails = ({ match }) => {
 
                 <div className="invoice-bills">
                   <div className="table-responsive">
-                    <h4>Customer Details</h4>
-                    <table className="table table-striped">
-                      <tbody>
-                        <tr>
-                          <td>
-                            <b>Full Name</b>
-                          </td>
-                          <td>{user.customername}</td>
-                          <td>
-                            <b>Account</b>
-                          </td>
-                          <td>{user.account}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b>Address</b>
-                          </td>
-                          <td>{user.homeaddress}</td>
-                          <td>
-                            <b>Telphone</b>
-                          </td>
-                          <td>{user.mobile}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b>Employment Type</b>
-                          </td>
-                          <td>{user.employmenttype}</td>
-                          <td>
-                            <b>Employer</b>
-                          </td>
-                          <td>{user.employer}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b>Position</b>
-                          </td>
-                          <td>{user.position}</td>
-                          <td>
-                            <b>Salary</b>
-                          </td>
-                          <td>{user.netmonthsalary}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b>Date Joining</b>
-                          </td>
-                          <td>{user.datejoining}</td>
-                          <td>
-                            {" "}
-                            <b>Previous Employer</b>
-                          </td>
-                          <td>{user.preemployer}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <h5>1. Application Details</h5>
-                    <table className="table table-striped">
+                    <table className="table table-striped" border="1">
                       <thead>
                         <tr>
-                          <th className="w-150px">Purpose</th>
-                          <th className="w-60">Amount</th>
-                          <th>Facility Period</th>
+                          <th>Name</th>
+                          <td style={{ textAlign: "left" }}>Wubshet Tadesse Maleku</td>
+                        </tr>
+                        <tr>
+                          <th>Account Number</th>
+                          <td style={{ textAlign: "left" }}>1004</td>
+                        </tr>
+                        <tr>
+                          <th>Exchange Rate</th>
+                          <td style={{ textAlign: "left" }}>USD=178 DJF</td>
+                        </tr>
+                      </thead>
+                    </table>
+
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="4"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            This application (all amounts in DJF).
+                          </td>
+                        </tr>
+                        <tr>
+                          <th className="w-60">Purpose (purchase of)</th>
+                          <th className="w-30">Amount (DJF)</th>
+                          <th className="w-50">Facility period</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.purpose}</td>
-
-                          <td>${user.amount}</td>
-
-                          <td>{user.tenure}</td>
+                          <td>{user.application.purpose}</td>
+                          <td>{user.application.amount}</td>
+                          <td>{user.application.tenure} Months</td>
                         </tr>
                       </tbody>
                     </table>
-                    <h5>2. Details of Financing</h5>
-                    <table className="table table-striped">
+
+                    <table className="table table-striped" border="1">
                       <thead>
                         <tr>
-                          <th className="w-150px">Amount</th>
-                          <th>Contribution</th>
-                          <th>Profite Rate</th>
-                          <th>Profit Amount</th>
-                          <th>Tenure</th>
+                          <td
+                            colSpan="6"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Details of financing
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Amount</th>
+                          <th>Customer's Contribution</th>
+                          <th>Amount Requested</th>
+                          <th>Profit Rate</th>
+                          <th>Profite Amount</th>
+                          <th>Tenor</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.amount}</td>
-
-                          <td>${user.contribution}</td>
-
-                          <td>%{user.profitrate}</td>
-                          <td>${user.profitamount}</td>
-                          <td>{user.tenure}</td>
+                          <td>{user.application.amount}</td>
+                          <td>{user.application.contribution}</td>
+                          <td>{user.application.amount}</td>
+                          <td>%{user.application.profitrate} p.a</td>
+                          <td>{user.application.profitamount}</td>
+                          <td>{user.application.tenure} Months</td>
                         </tr>
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colSpan="2"></td>
-                          <td colSpan="2">Total Amount</td>
-                          <td>${user.totalamount}</td>
+                          <td colSpan="2" style={{ fontWeight: 800 }}>
+                            Total Amount (Principal + Profit)
+                          </td>
+                          <td>${user.application.totalamount}</td>
+                          <td colSpan="2" style={{ fontWeight: 800 }}>
+                            Monthly Installment
+                          </td>
+                          <td>${user.application.totalamount}</td>
                         </tr>
                       </tfoot>
                     </table>
-                    <h5> 3. Existing Facilities at EAB</h5>
-                    <table className="table table-striped">
+
+                    <table className="table table-striped" border="1">
                       <thead>
                         <tr>
-                          <th>Facility Type</th>
+                          <td
+                            colSpan="7"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Existing Facilities at EAB (all figures in DJF)
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Facility type</th>
                           <th>Amount Disbursed</th>
                           <th>Outstanding</th>
                           <th>Profit Rate</th>
@@ -480,13 +468,13 @@ const InvoiceDetails = ({ match }) => {
                       <tbody>
                         {(user.bank === "EAB" && (
                           <tr>
-                            <th scope="row">{user.facilityType}</th>
-                            <td>{user.amountdisbursed}</td>
-                            <td>{user.outstanding}</td>
-                            <td>{user.exprofitrate}</td>
-                            <td>{user.totalprofit}</td>
-                            <td>{user.maturitydate}</td>
-                            <td>{user.exmonthlyinstallment}</td>
+                            <th scope="row">{user.facility.facilityType}</th>
+                            <td>{user.facility.amountdisbursed}</td>
+                            <td>{user.facility.outstanding}</td>
+                            <td>{user.facility.exprofitrate}</td>
+                            <td>{user.facility.totalprofit}</td>
+                            <td>{user.facility.maturitydate}</td>
+                            <td>{user.facility.exmonthlyinstallment}</td>
                           </tr>
                         )) || (
                           <tr>
@@ -501,11 +489,19 @@ const InvoiceDetails = ({ match }) => {
                         )}
                       </tbody>
                     </table>
-                    <h5> 4. Existing Facilities of other banks</h5>
-                    <table className="table table-striped">
+
+                    <table className="table table-striped" border="1">
                       <thead>
                         <tr>
-                          <th>Facility Type</th>
+                          <td
+                            colSpan="7"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Existing Facilities at other banks (all figures in DJF)
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Facility type</th>
                           <th>Amount Disbursed</th>
                           <th>Outstanding</th>
                           <th>Profit Rate</th>
@@ -517,13 +513,13 @@ const InvoiceDetails = ({ match }) => {
                       <tbody>
                         {(user.bank === "Other" && (
                           <tr>
-                            <th scope="row">{user.facilityType}</th>
-                            <td>{user.amountdisbursed}</td>
-                            <td>{user.outstanding}</td>
-                            <td>{user.exprofitrate}</td>
-                            <td>{user.totalprofit}</td>
-                            <td>{user.maturitydate}</td>
-                            <td>{user.exmonthlyinstallment}</td>
+                            <th scope="row">{user.facility.facilityType}</th>
+                            <td>{user.facility.amountdisbursed}</td>
+                            <td>{user.facility.outstanding}</td>
+                            <td>{user.facility.exprofitrate}</td>
+                            <td>{user.facility.totalprofit}</td>
+                            <td>{user.facility.maturitydate}</td>
+                            <td>{user.facility.exmonthlyinstallment}</td>
                           </tr>
                         )) || (
                           <tr>
@@ -538,62 +534,141 @@ const InvoiceDetails = ({ match }) => {
                         )}
                       </tbody>
                     </table>
-                    <h5> 5. Total Exposure</h5>
-                    <table className="table table-striped">
-                      <tbody>
-                        <tr>
-                          <th>Total Outstanding</th>
-                          <td>{user.outstanding}</td>
-                        </tr>
-                        <tr>
-                          <th>Total Amount (existing facility and the proposed facility in USD)</th>
-                          <td>{user.outstanding + user.amount}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <h5> 6. Total Exposure</h5>
-                    <table className="table table-striped">
-                      <tbody>
-                        <tr>
-                          <th>Monthly Installment under proposed facility</th>
-                          <td>{user.netmonthsalary}</td>
-                        </tr>
-                        <tr>
-                          <th>Monthly Salary</th>
-                          <td>{user.outstanding + user.netmonthsalary}</td>
-                        </tr>
-                        <tr>
-                          <th>DBR</th>
-                          <td></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <h5> 7. Source of Payment</h5>
-                    <table className="table table-striped">
-                      <tbody>
-                        <tr>
-                          <td>{user.sourceofpayment}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <h5> 8. Proposed Security</h5>
-                    <table className="table table-striped">
+
+                    <table className="table table-striped" border="1">
                       <thead>
                         <tr>
-                          <th className="w-150px">Details</th>
-                          <th className="w-60">Details/Description/Location</th>
+                          <td
+                            colSpan="2"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Total exposure (limit issue)
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Total Principal outstanding ( existing facilities at EAB) in DJF</td>
+                          <td>{user.facility?.outstanding}</td>
+                        </tr>
+                        <tr>
+                          <td>Total amount (existing facilities and the proposed facility in USD</td>
+                          <td>{user.facility?.outstanding + user.application.amount}</td>
+                        </tr>
+                      </thead>
+                    </table>
+
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="2"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Debt Burden Ratio
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Monthly Installment under proposed facility</td>
+                          <td>{user.application.monthlyinstallment}</td>
+                        </tr>
+                        <tr>
+                          <td>Monthly salary</td>
+                          <td>800$</td>
+                        </tr>
+                        <tr>
+                          <td>DBR</td>
+                          <td>25%</td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="2"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Source of payment
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{user.application.sourceofpayment}</td>
+                        </tr>
+                      </thead>
+                    </table>
+
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Proposed Security (all values in DJF)
+                          </td>
+                        </tr>
+                        <tr>
+                          <th className="w-60">Details</th>
+                          <th className="w-40">Details/Description/Location</th>
                           <th>Value</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.securitydetails}</td>
-                          <td>{user.securitydescription}</td>
-                          <td>{user.value}</td>
+                          <td>{user.application.securitydetails}</td>
+                          <td>{user.application.securitydescription}</td>
+                          <td>{user.application.value}</td>
                         </tr>
                       </tbody>
                     </table>
-                    <h5> Credit Analyst Recommendation</h5>
+
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="2"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Credit Analyst Recommendation
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Mohamed Kamil Signature: .......................</td>
+                          <td>Date: ..........................</td>
+                        </tr>
+                        <tr>
+                          <td>{user.application.ca}</td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <td
+                            colSpan="2"
+                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                          >
+                            Credit Commitee
+                          </td>
+                        </tr>
+                        <tr>
+                          {user.commit?.map((e) => (
+                            <td style={{ textAlign: "left", fontWeight: 800 }}>{e.name}</td>
+                          ))}
+                        </tr>
+                        <tr>
+                          {user.commit?.map((e) => (
+                            <td style={{ textAlign: "left", fontWeight: 500 }}>{e?.title?.title}</td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td style={{ height: 50 }}> </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>{" "}
+                      </thead>
+                    </table>
                     <div className="nk-notes ff-italic fs-14px text-secondary">{user.ca}</div>
                   </div>
                 </div>

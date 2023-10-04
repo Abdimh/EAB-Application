@@ -40,10 +40,11 @@ import instanceAxios from "../../../utils/AxiosSetup";
 
 import { CustomToast } from "../../../utils/CustomToast";
 const UserList = () => {
-  const { contextData } = useContext(UserContext);
-  const [data, setData] = contextData;
+  // const { contextData } = useContext(UserContext);
+  const [data, setData] = useState([]);
   const [roles, setRoles] = useState([]);
   const [title, setTitles] = useState([]);
+  const [status, setStatus] = useState("");
   const [sm, updateSm] = useState(false);
   const [onSearchText] = useState("");
   const [roleValue, setRoleValue] = useState("");
@@ -58,9 +59,10 @@ const UserList = () => {
     email: "",
     password: "123456",
     phone: "",
-    title: 0,
-    role: 0,
+    titleId: 0,
+    roleId: 0,
     id: 0,
+    status: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage] = useState(10);
@@ -140,7 +142,7 @@ const UserList = () => {
       email: "",
       balance: "",
       phone: "",
-      status: "Active",
+      status: "",
     });
   };
 
@@ -160,14 +162,15 @@ const UserList = () => {
         email: email,
         phone: phone,
         password: password,
-        title: title,
-        role: role,
+        titleId: Number(title),
+        roleId: Number(role),
+        status: formData.status,
       });
 
       const { data } = RoleRes;
       // 200 Data
 
-      if (data.name) CustomToast("Successfully Added", false, "success");
+      CustomToast("Successfully Added", false, "success");
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -182,22 +185,14 @@ const UserList = () => {
         }
       }
     }
-    let submittedData = {
-      id: data.length + 1,
-      title: title,
-      name: name,
-      email: email,
-      phone: phone,
-      role: role,
-    };
-    setData([submittedData, ...data]);
+    getUsers();
     resetForm();
     setModal({ edit: false }, { add: false });
   };
 
   // submit function to update a new item
   const onEditSubmit = async (submitData) => {
-    const { id, name, email, phone, title, role, password } = submitData;
+    const { id, name, email, phone, title, role, password, status } = submitData;
     console.log(submitData);
     try {
       const RoleRes = await instanceAxios.put("Employee", {
@@ -206,14 +201,16 @@ const UserList = () => {
         email: email,
         phone: phone,
         password: password,
-        title: title,
-        role: role,
+        titleId: Number(title),
+        roleId: Number(role),
+        status: status,
       });
 
       const { data } = RoleRes;
       // 200 Data
 
-      if (data.title) CustomToast("Successfully Updated", false, "success");
+      CustomToast("Successfully Updated", false, "success");
+      getUsers();
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -257,15 +254,16 @@ const UserList = () => {
           name: item.name,
           email: item.email,
           title: item.titleid,
-          role: item.roleid,
+          role: item.role.id,
           phone: item.phone,
           id: item.id,
           password: item.password,
+          status: item.status,
         });
         setModal({ edit: true }, { add: false });
         setEditedId(id);
+        console.log(item);
       }
-      console.log(item);
     });
   };
 
@@ -314,12 +312,21 @@ const filterRole = [
   { value: "buyer", label: "Buyer" },
 ];
 */
+
+  const statusoptions = [
+    { value: "Active", label: "Active" },
+    { value: "Suspend", label: "Suspend" },
+  ];
   const options = roles.map(function (item) {
     return <option value={item.id}>{item.name}</option>;
   });
 
   const optionstitle = title.map(function (item) {
     return <option value={item.id}>{item.title}</option>;
+  });
+
+  const statusoption = statusoptions.map(function (item) {
+    return <option value={item.value}>{item.label}</option>;
   });
 
   // Get current list, pagination
@@ -399,7 +406,7 @@ const filterRole = [
                 <span className="sub-text">Phone</span>
               </DataTableRow>
               <DataTableRow size="lg">
-                <span className="sub-text">Title</span>
+                <span className="sub-text">Status</span>
               </DataTableRow>
 
               <DataTableRow className="nk-tb-col-tools text-right">
@@ -477,7 +484,7 @@ const filterRole = [
                       <span>{item.phone}</span>
                     </DataTableRow>
                     <DataTableRow size="lg">
-                      <span>{item.title}</span>
+                      <span>{item.status}</span>
                     </DataTableRow>
 
                     <DataTableRow className="nk-tb-col-tools">
@@ -825,6 +832,23 @@ const filterRole = [
                           ref={register({ required: "This field is required" })}
                         >
                           {options}
+                        </select>
+                      </div>
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Status</label>
+                      <div className="form-control-wrap">
+                        <select
+                          className="form-control"
+                          name="status"
+                          defaultValue={formData.status}
+                          onChange={(e) => setStatus(e.target.value)}
+                          ref={register({ required: "This field is required" })}
+                        >
+                          {statusoption}
+                          <options value="Suspend">Suspend</options>
                         </select>
                       </div>
                     </FormGroup>

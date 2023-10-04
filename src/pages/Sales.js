@@ -52,7 +52,7 @@ const SalesHome = () => {
                         <DropdownToggle tag="a" className="btn btn-white btn-dim btn-outline-light">
                           <Icon className="d-none d-sm-inline" name="calender-date" />
                           <span>
-                            <span className="d-none d-md-inline">Last</span> 30 Days
+                            <span className="d-none d-md-inline">Lasts</span> 30 Dayss
                           </span>
                           <Icon className="dd-indc" name="chevron-right" />
                         </DropdownToggle>

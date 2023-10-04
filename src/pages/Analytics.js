@@ -51,7 +51,7 @@ const AnalyticsHomePage = () => {
                         <DropdownToggle tag="a" className="dropdown-toggle btn btn-white btn-dim btn-outline-light">
                           <Icon className="d-none d-sm-inline" name="calender-date"></Icon>
                           <span>
-                            <span className="d-none d-md-inline">Last</span> 30 Days
+                            <span className="d-none d-md-inline">Lasts</span> 30 Days
                           </span>
                           <Icon className="dd-indc" name="chevron-right"></Icon>
                         </DropdownToggle>

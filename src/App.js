@@ -19,6 +19,8 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import Success from "./pages/auth/Success";
 import InvoicePrint from "./pages/pre-built/Investments/InvoicePrint";
 
+import ReportPrint from "./pages/pre-built/Investments/ReportPrint";
+
 const App = (props) => {
   return (
     <Switch>
@@ -30,6 +32,7 @@ const App = (props) => {
 
       {/* Print Pages */}
       <Route exact path={`${process.env.PUBLIC_URL}/invoice-print/:id`} component={InvoicePrint}></Route>
+      <Route exact path={`${process.env.PUBLIC_URL}/report-print/:from/:to`} component={ReportPrint}></Route>
 
       {/* Helper pages */}
       <Route exact path={`${process.env.PUBLIC_URL}/auths/terms`} component={Terms}></Route>

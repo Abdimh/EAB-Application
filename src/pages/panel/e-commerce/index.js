@@ -20,7 +20,7 @@ const Dashboard = () => {
         <BlockHead size="sm">
           <BlockBetween>
             <BlockHeadContent>
-              <BlockTitle page>Dashboard</BlockTitle>
+              <BlockTitle page>Dashboards</BlockTitle>
             </BlockHeadContent>
           </BlockBetween>
         </BlockHead>

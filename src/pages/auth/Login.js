@@ -81,7 +81,7 @@ const Login = () => {
               <div className="mb-3">
                 <Alert color="danger" className="alert-icon">
                   {" "}
-                  <Icon name="alert-circle" /> Incorrect Username or Password{" "}
+                  <Icon name="alert-circle" /> Incorrect Username or Password or Suspended account.{" "}
                 </Alert>
               </div>
             )}

@@ -31,11 +31,12 @@ import { kycData } from "./KycData";
 import { Link } from "react-router-dom";
 import axios, { AxiosError, isAxiosError } from "axios";
 import instanceAxios from "../../../utils/AxiosSetup";
-import { svgSelect } from "../kyc-list-regular/Data";
-import { FileManagerContext } from "../kyc-list-regular/FileManager";
+import { svgSelect } from "./Data";
+import { FileManagerContext } from "./FileManager";
 import { bytesToMegaBytes, currentTime, getDateStructured } from "../../../utils/Utils";
 import { CustomToast } from "../../../utils/CustomToast";
 const KycDetailsRegular = ({ match }) => {
+  const id = match.params.id;
   const [data] = useState(kycData);
   const [users, setUsers] = useState();
   const [uploadModal, setUploadModal] = useState(false);
@@ -102,42 +103,6 @@ const KycDetailsRegular = ({ match }) => {
     setFiles([...defaultFiles]);
   };
 
-  const addFilesToSystem = () => {
-    let newFiles = [];
-    const id = match.params.id;
-
-    const formData = new FormData();
-    try {
-      files.forEach((file) => {
-        formData.append(`files`, file);
-        formData.append(`FileName`, file.name);
-        formData.append(`Applicationid`, id);
-      });
-
-      const RoleRes = instanceAxios.post("Upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      CustomToast("Successfully Uploaded", false, "success");
-      setUploadModal(false);
-    } catch (error) {
-      // 401, 403, 400
-      if (isAxiosError(error)) {
-        const { response } = error;
-
-        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
-
-        console.log(response.status, response.data);
-
-        if (response.status === 400 && response.status === 403) {
-          //
-        }
-      }
-    }
-  };
-
   const onInputChange = (e) => {
     setInputText(e.target.value);
   };
@@ -176,15 +141,51 @@ const KycDetailsRegular = ({ match }) => {
   };
 
   const getUploads = async () => {
-    const id = match.params.id;
+    const idget = match.params.id;
     try {
-      const Endpoint = `Upload/${id}`;
+      const Endpoint = `Upload/${idget}`;
       const data = await instanceAxios.get(Endpoint);
 
       setUser(data.data);
       console.log(user);
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const addFilesToSystem = () => {
+    let newFiles = [];
+    const id = match.params.id;
+
+    const formData = new FormData();
+    try {
+      files.forEach((file) => {
+        formData.append(`files`, file);
+        formData.append(`FileName`, file.name);
+        formData.append(`Applicationid`, id);
+      });
+
+      const RoleRes = instanceAxios.post("Upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      getUploads();
+      CustomToast("Successfully Uploaded", false, "success");
+      setUploadModal(false);
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        if (response.status === 400 && response.status === 403) {
+          //
+        }
+      }
     }
   };
 
@@ -221,7 +222,7 @@ const KycDetailsRegular = ({ match }) => {
         <BlockHead size="sm">
           <BlockBetween className="g-3">
             <BlockHeadContent>
-              <Link to={`${process.env.PUBLIC_URL}/kyc-list-regular`}>
+              <Link to={`${process.env.PUBLIC_URL}/application-details/${id}`}>
                 <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
                   <Icon name="arrow-left"></Icon>
                   <span>Back</span>
@@ -357,9 +358,6 @@ const KycDetailsRegular = ({ match }) => {
                       }}
                     ></textarea>
                   </div>
-                  <Button color="primary" className="btn btn-primary">
-                    Send
-                  </Button>
                 </div>
               </Card>
             </Col>

@@ -5,6 +5,7 @@ import Head from "../../../layout/head/Head";
 import {
   UncontrolledDropdown,
   Form,
+  Label,
   Modal,
   DropdownMenu,
   FormGroup,
@@ -13,6 +14,7 @@ import {
   Badge,
   DropdownItem,
   ModalBody,
+  Row,
 } from "reactstrap";
 
 import {
@@ -32,12 +34,14 @@ import { Link } from "react-router-dom";
 import { invoiceData } from "./Invoice";
 import axios, { AxiosError, isAxiosError } from "axios";
 import instanceAxios from "../../../utils/AxiosSetup";
-
+import DatePicker from "react-datepicker";
 import { CustomToast } from "../../../utils/CustomToast";
 import { BadRequest } from "../../../utils/Error";
+import moment from "moment";
+import { log } from "util";
 //import { Value } from "sass";
 const InvoiceList = () => {
-  const [data, setData] = useState(invoiceData);
+  const [data, setData] = useState([]);
   const [onSearch, setonSearch] = useState(true);
   const [existingFacility, setExistingFacility] = useState(false);
   const [onSearchText, setSearchText] = useState("");
@@ -47,7 +51,9 @@ const InvoiceList = () => {
   const [sm, updateSm] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [customerValue, setCustomerValue] = useState("");
+  const [statusValue, setstatusValue] = useState("");
   const [facilityValue, setFacilityValue] = useState("");
+  const [selected, setSelected] = useState([]);
   const [user, setUser] = useState({
     expireIn: Number,
     expireTimeStamp: String,
@@ -64,6 +70,21 @@ const InvoiceList = () => {
   const [editId, setEditedId] = useState();
   //const [data, setData] = useState(projectData);
   const [genderValue, setGenderValue] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [startIconDate, setStartIconDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [month, setMonth] = useState(new Date());
+  const [year, setYear] = useState(new Date());
+  const [rangeStart, setRangeStart] = useState(new Date());
+  const [rangeEnd, setRangeEnd] = useState();
+  const [rangeDate, setRangeDate] = useState({
+    start: new Date(),
+    end: null,
+  });
+  const [dateFrom, setDateFrom] = useState(new Date(Date.now()));
+  const [dateTo, setDateTo] = useState(new Date(Date.now()));
+  const [id, setId] = useState("");
+  const [artists, setArtists] = useState([]);
   const [formData, setFormData] = useState({
     id: 0,
     customerid: 0,
@@ -101,7 +122,7 @@ const InvoiceList = () => {
   const getApplications = async () => {
     try {
       const datares = await instanceAxios.get("IndividualApp");
-      //console.log(data.data)
+      console.log(data.data);
       setData(datares.data);
     } catch (e) {
       console.log(e);
@@ -182,6 +203,7 @@ const InvoiceList = () => {
         monthlyinstallmentexist: monthlyinstallmentexist,
         facilitytype: facilitytype,
         bank: bank,
+        status: status,
       });
 
       const { data } = RoleRes;
@@ -225,32 +247,33 @@ const InvoiceList = () => {
     console.log("Edit Data from API", data);
 
     setFormData({
-      id: data.id,
-      customerid: data.customerid,
-      purpose: data.purpose,
-      amount: data.amount,
-      tenure: data.tenure,
-      profitrate: data.profitrate,
-      profitamount: data.profitamount,
-      totalamount: data.totalamount,
-      monthlyinstallment: data.monthlyinstallment,
-      sourceofpayment: data.sourceofpayment,
-      securitydetails: data.securitydetails,
-      securitydescription: data.securitydescription,
-      value: data.value,
-      contribution: data.contribution,
+      id: data.application.id,
+      customerid: data.customer.customerid,
+      purpose: data.application.purpose,
+      amount: data.application.amount,
+      tenure: data.application.tenure,
+      profitrate: data.application.profitrate,
+      profitamount: data.application.profitamount,
+      totalamount: data.application.totalamount,
+      monthlyinstallment: data.application.monthlyinstallment,
+      sourceofpayment: data.application.sourceofpayment,
+      securitydetails: data.application.securitydetails,
+      securitydescription: data.application.securitydescription,
+      value: data.application.value,
+      contribution: data.application.contribution,
       createdby: user.userName,
-      amountdisbursed: data.amountdisbursed,
-      outstanding: data.outstanding,
-      profitrateexist: data.exprofitrate,
-      totalprofit: data.totalprofit,
-      maturitydate: data.maturitydate,
-      monthlyinstallmentexist: data.exmonthlyinstallment,
-      facilitytype: data.facilityType,
-      bank: data.bank,
+      amountdisbursed: data.facility?.amountdisbursed,
+      outstanding: data.facility?.outstanding,
+      profitrateexist: data.facility?.exprofitrate,
+      totalprofit: data.facility?.totalprofit,
+      maturitydate: data.facility?.maturitydate,
+      monthlyinstallmentexist: data.facility?.exmonthlyinstallment,
+      facilitytype: data.facility?.facilityType,
+      bank: data.facility?.bank,
+      status: data.application.status,
     });
 
-    if (data.facilityType != "Nil") {
+    if (data.facility?.facilityType === null) {
       setExistingFacility(true);
     } else {
       setExistingFacility(false);
@@ -267,7 +290,9 @@ const InvoiceList = () => {
     getApplications();
   }, []);
   // submit function to add a new item
+  console.log(data);
   const onFormSubmit = async (submitData) => {
+    const array = [{ id: 1 }, { id: 2 }];
     const {
       customerid,
       purpose,
@@ -283,6 +308,7 @@ const InvoiceList = () => {
       value,
       contribution,
       status,
+
       facilitytype,
       amountdisbursed,
       outstanding,
@@ -292,10 +318,12 @@ const InvoiceList = () => {
       monthlyinstallmentexist,
       bank,
     } = submitData;
-    console.log(submitData);
+
+    // console.log(submitData);
     try {
-      const RoleRes = await instanceAxios.post("IndividualApp", {
-        customerid: customerid,
+      const arraydata = [];
+      selected.forEach((item) => arraydata.push(item.id));
+      const data = {
         purpose: purpose,
         amount: amount,
         tenure: tenure,
@@ -307,6 +335,7 @@ const InvoiceList = () => {
         securitydetails: securitydetails,
         securitydescription: securitydescription,
         value: value,
+        CustomersList: arraydata,
         contribution: contribution,
         createdby: user.userName,
         amountdisbursed: amountdisbursed,
@@ -317,9 +346,18 @@ const InvoiceList = () => {
         monthlyinstallmentexist: monthlyinstallmentexist,
         facilitytype: facilitytype,
         bank: bank,
-      });
+      };
+      const RoleRes = await instanceAxios
+        .post("IndividualApp", data, {
+          headers: {
+            "content-type": "application/x-www-form-urlencoded;charset=utf-8",
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+        });
 
-      const { data } = RoleRes;
+      // console.log(data);
       // 200 Data
 
       CustomToast("Successfully Added", false, "success");
@@ -331,6 +369,8 @@ const InvoiceList = () => {
         if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
 
         console.log(response.status, response.data);
+
+        console.log(response.data);
 
         if (response.status === 400) {
           //
@@ -350,6 +390,8 @@ const InvoiceList = () => {
     getApplications();
     setModal({ edit: false }, { add: false });
   };
+  var fromdate = moment(rangeStart).format("YYYY-MM-DD");
+  var todate = moment(rangeEnd).format("YYYY-MM-DD");
 
   // onChange function for searching name
   const onFilterChange = (e) => {
@@ -366,12 +408,31 @@ const InvoiceList = () => {
 
   // function to toggle the search option
   const toggle = () => setonSearch(!onSearch);
-  const { errors, register, handleSubmit } = useForm();
+  const { errors, register, handleSubmit, setValue } = useForm();
 
   const options = customers.map(function (item) {
     return <option value={item.id}>{item.name}</option>;
   });
 
+  const onRangeChange = (dates) => {
+    const [start, end] = dates;
+    setRangeDate({ start: start, end: end });
+  };
+
+  const selectedHandler = (id) => {
+    let newSelected = [...selected];
+
+    if (selected.find((e) => e.id === id)) {
+      newSelected = selected.filter((p) => p.id !== id);
+    } else {
+      var find = customers.find((e) => e.id === id);
+      newSelected.push(find);
+    }
+
+    setSelected(newSelected);
+  };
+  let nextId = 0;
+  console.log();
   return (
     <React.Fragment>
       <Head title="Invoice List"></Head>
@@ -379,7 +440,42 @@ const InvoiceList = () => {
         <BlockHead size="sm">
           <BlockBetween>
             <BlockHeadContent>
-              <BlockTitle page>Personal Investments</BlockTitle>
+              <div className="mt-4">
+                <div className="row gy-4">
+                  <Col md="4">
+                    <DatePicker
+                      selected={rangeStart}
+                      onChange={setRangeStart}
+                      // selectsStart
+                      // startDate={rangeStart}
+                      // endDate={rangeEnd}
+                      wrapperClassName="start-m"
+                      className="form-control"
+                    />
+                  </Col>
+
+                  <Col md="4">
+                    <DatePicker
+                      selected={rangeEnd}
+                      onChange={setRangeEnd}
+                      // startDate={rangeStart}
+                      // endDate={rangeEnd}
+                      // selectsEnd
+                      minDate={rangeStart}
+                      wrapperClassName="end-m"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col size="4">
+                    <Link to={`${process.env.PUBLIC_URL}/report-print/${fromdate}/${todate}`} target="_blank">
+                      <Button color="primary">
+                        <span>Export</span>
+                      </Button>
+                    </Link>
+                  </Col>
+                </div>
+              </div>
+              <br />
               <BlockDes className="text-soft">
                 <p>You have total 937 invoices.{user.role.name}</p>
               </BlockDes>
@@ -405,6 +501,7 @@ const InvoiceList = () => {
                   <div className="card-title">
                     <h5 className="title">All Applications</h5>
                   </div>
+
                   <div className="card-tools mr-n1">
                     <ul className="btn-toolbar">
                       <li>
@@ -556,16 +653,17 @@ const InvoiceList = () => {
                               </td>
                               <td className="tb-odr-action">
                                 <div className="tb-odr-btns d-none d-sm-inline">
-                                  <Button
-                                    color="primary"
-                                    size="sm"
-                                    className="btn btn-dim"
-                                    onClick={() => onEditClick(item.id)}
-                                  >
-                                    Edit {console.log(item)}
-                                  </Button>
-
-                                  <Link to={`${process.env.PUBLIC_URL}/invoice-details/${item.id}`}>
+                                  {user.role.name === "Relation Officer Investments" && (
+                                    <Button
+                                      color="primary"
+                                      size="sm"
+                                      className="btn btn-dim"
+                                      onClick={() => onEditClick(item.id)}
+                                    >
+                                      Edit {console.log(item)}
+                                    </Button>
+                                  )}
+                                  <Link to={`${process.env.PUBLIC_URL}/application-details/${item.id}`}>
                                     <Button color="primary" size="sm" className="btn btn-dim">
                                       View
                                     </Button>
@@ -618,25 +716,39 @@ const InvoiceList = () => {
             <div className="p-2">
               <h5 className="title">New Application</h5>
               <div className="mt-4">
+                {/* <MultiSelect options={[customers]} value={selected} onChange={setSelected} labelledBy="Select" /> */}
+                <Col md="12">
+                  <div className="form-control-wrap">
+                    <select
+                      className="form-control"
+                      onChange={(e) => {
+                        var value = Number(e.target.value);
+
+                        selectedHandler(value);
+                      }}
+                    >
+                      {customers.map((employee, index) => {
+                        return <option value={employee.id}>{employee.name}</option>;
+                      })}
+                    </select>
+                  </div>
+                </Col>
+
+                {selected.map((item) => {
+                  return (
+                    <ul>
+                      <li style={{ padding: 4 }}>
+                        <Button color="primary" onClick={() => selectedHandler(item.id)}>
+                          <span>{item.name}</span>
+                          <Icon name="cross" />
+                        </Button>
+                      </li>
+                    </ul>
+                  );
+                })}
+                <br />
+                <br />
                 <Form className="row gy-4" onSubmit={handleSubmit(onFormSubmit)}>
-                  <Col size="12">
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="product-title">
-                        Select Customer Name
-                      </label>
-                      <div className="form-control-wrap">
-                        <select
-                          className="form-control"
-                          name="customerid"
-                          defaultValue={formData.customerid}
-                          onChange={(e) => setCustomerValue(e.target.value)}
-                          ref={register({ required: "This field is required" })}
-                        >
-                          {options}
-                        </select>
-                      </div>
-                    </div>
-                  </Col>
                   <Col md="6">
                     <FormGroup>
                       <label className="form-label">Purpose</label>
@@ -838,7 +950,7 @@ const InvoiceList = () => {
                           onChange={(e) => {
                             console.log("Check faci ");
 
-                            setExistingFacility(e.target.value);
+                            setExistingFacility(!existingFacility);
                           }}
                           className="custom-control-input form-control"
                           defaultChecked={existingFacility}
@@ -1254,6 +1366,24 @@ const InvoiceList = () => {
                       />
                       {errors.citizenship && <span className="invalid">{errors.contribution.message}</span>}
                     </FormGroup>
+                  </Col>
+                  <Col size="6">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="product-title">
+                        Status
+                      </label>
+                      <div className="form-control-wrap">
+                        <select
+                          className="form-control"
+                          name="status"
+                          defaultValue={formData.status}
+                          onChange={(e) => setFacilityValue(e.target.value)}
+                          ref={register({ required: "This field is required" })}
+                        >
+                          <option value="Proposal">Proposal</option>
+                        </select>
+                      </div>
+                    </div>
                   </Col>
                   <Col md="12">
                     <div className="preview-block">

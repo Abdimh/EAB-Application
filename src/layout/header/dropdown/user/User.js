@@ -52,28 +52,14 @@ const User = () => {
       <DropdownMenu right className="dropdown-menu-md dropdown-menu-s1">
         <div className="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
           <div className="user-card sm">
-            <div className="user-avatar">
-              <span>AM</span>
-            </div>
+            <div className="user-avatar"></div>
             <div className="user-info">
               <span className="lead-text">{user?.fullname}</span>
               <span className="sub-text">{user?.userName}</span>
             </div>
           </div>
         </div>
-        <div className="dropdown-inner">
-          <LinkList>
-            <LinkItem link="/user-profile-regular" icon="user-alt" onClick={toggle}>
-              View Profile
-            </LinkItem>
-            <LinkItem link="/user-profile-setting" icon="setting-alt" onClick={toggle}>
-              Account Setting
-            </LinkItem>
-            <LinkItem link="/user-profile-activity" icon="activity-alt" onClick={toggle}>
-              Login Activity
-            </LinkItem>
-          </LinkList>
-        </div>
+
         <div className="dropdown-inner">
           <LinkList>
             <a href={`${process.env.PUBLIC_URL}/auth-login`} onClick={handleSignout}>

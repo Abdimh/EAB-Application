@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Redirect } from "react-router-dom";
 
 const auth = localStorage.getItem("accessToken");
-
+const data = JSON.parse(localStorage.getItem("user"));
 const PrivateRoute = ({ exact, component: Component, ...rest }) => (
   <Route
     exact={exact ? true : false}
