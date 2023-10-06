@@ -30,7 +30,7 @@ import {
 } from "../../../components/Component";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
-import { filterStatus, userData } from "./UserData";
+
 import { findUpper } from "../../../utils/Utils";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -101,7 +101,7 @@ const UserList = () => {
   // unselects the data on mount
   useEffect(() => {
     let newData;
-    newData = userData.map((item) => {
+    newData = data.map((item) => {
       item.checked = false;
       return item;
     });
@@ -115,7 +115,7 @@ const UserList = () => {
     getUsers();
     //  console.log(filterRole)
     if (onSearchText !== "") {
-      const filteredObject = userData.filter((item) => {
+      const filteredObject = data.filter((item) => {
         return (
           item.name.toLowerCase().includes(onSearchText.toLowerCase()) ||
           item.email.toLowerCase().includes(onSearchText.toLowerCase())
@@ -123,7 +123,7 @@ const UserList = () => {
       });
       setData([...filteredObject]);
     } else {
-      setData([...userData]);
+      setData([...data]);
     }
   }, [onSearchText, setData]);
 
@@ -174,14 +174,8 @@ const UserList = () => {
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
-        const { response } = error;
-
-        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
-
-        console.log(response.status, response.data);
-
-        if (response.status === 400 && response.status === 403) {
-          //
+        if (error.response.data) {
+          CustomToast("This Email user already exists", false, "success");
         }
       }
     }
@@ -406,7 +400,7 @@ const filterRole = [
                 <span className="sub-text">Phone</span>
               </DataTableRow>
               <DataTableRow size="lg">
-                <span className="sub-text">Status</span>
+                <span className="sub-text">Title</span>
               </DataTableRow>
 
               <DataTableRow className="nk-tb-col-tools text-right">
@@ -447,7 +441,7 @@ const filterRole = [
                 </UncontrolledDropdown>
               </DataTableRow>
             </DataTableHead>
-            {/*Head*/}
+
             {currentItems.length > 0
               ? currentItems.map((item) => (
                   <DataTableItem key={item.id}>
@@ -484,7 +478,7 @@ const filterRole = [
                       <span>{item.phone}</span>
                     </DataTableRow>
                     <DataTableRow size="lg">
-                      <span>{item.status}</span>
+                      <span>{item.title.title}</span>
                     </DataTableRow>
 
                     <DataTableRow className="nk-tb-col-tools">
@@ -630,7 +624,7 @@ const filterRole = [
                       <label className="form-label">Password</label>
                       <input
                         className="form-control"
-                        type="number"
+                        type="password"
                         name="password"
                         defaultValue={formData.balance}
                         placeholder="Enter Password"

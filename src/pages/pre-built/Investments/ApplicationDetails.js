@@ -36,6 +36,7 @@ import instanceAxios from "../../../utils/AxiosSetup";
 import { useForm } from "react-hook-form";
 import { CustomToast } from "../../../utils/CustomToast";
 import { red } from "@mui/material/colors";
+import moment from "moment";
 const InvoiceDetails = ({ match }) => {
   const userId = match.params.id;
   const [data] = useState(invoiceData);
@@ -87,6 +88,7 @@ const InvoiceDetails = ({ match }) => {
       const data = await instanceAxios.get(Endpoint);
       console.log(id);
       setUser(data.data);
+      console.log();
     } catch (e) {
       console.log(e);
     }
@@ -105,24 +107,24 @@ const InvoiceDetails = ({ match }) => {
     console.log(user);
     try {
       const RoleRes = await instanceAxios.put("IndividualApp/UpdateCA", {
-        applicationid: user.application.id,
+        applicationid: submitData.id,
         status: "Recommend",
-        customerid: user.customer.id,
-        purpose: user.application.purpose,
-        amount: user.application.amount,
-        tenure: user.application.tenure,
-        contribution: user.application.contribution,
-        profitrate: user.application.profitrate,
-        profitamount: user.application.profitamount,
-        totalamount: user.application.totalamount,
-        monthlyinstallment: user.application.monthlyinstallment,
-        securitydetails: user.application.securitydetails,
-        securitydescription: user.application.securitydescription,
-        sourceofpayment: user.application.sourceofpayment,
-        value: user.application.value,
-        condition: user.application.condition,
-        RM: user.application.RM,
-        ca: user.applicationCA,
+        customerid: user?.customer.id,
+        purpose: submitData.purpose,
+        amount: submitData.amount,
+        tenure: submitData.tenure,
+        contribution: submitData.contribution,
+        profitrate: submitData.profitrate,
+        profitamount: submitData.profitamount,
+        totalamount: submitData.totalamount,
+        monthlyinstallment: submitData.monthlyinstallment,
+        securitydetails: submitData.securitydetails,
+        securitydescription: submitData.securitydescription,
+        sourceofpayment: submitData.sourceofpayment,
+        value: submitData.value,
+        condition: submitData.condition,
+        RM: submitData.RM,
+        ca: submitData.CA,
       });
 
       const { data } = RoleRes;
@@ -153,24 +155,24 @@ const InvoiceDetails = ({ match }) => {
     console.log(submitData);
     try {
       const RoleRes = await instanceAxios.put("IndividualApp", {
-        applicationid: user.application.id,
+        applicationid: submitData.id,
         status: status,
-        customerid: user.customer.id,
-        purpose: user.application.purpose,
-        amount: user.application.amount,
-        tenure: user.application.tenure,
-        contribution: user.application.contribution,
-        profitrate: user.application.profitrate,
-        profitamount: user.application.profitamount,
-        totalamount: user.application.totalamount,
-        monthlyinstallment: user.application.monthlyinstallment,
-        securitydetails: user.application.securitydetails,
-        securitydescription: user.application.securitydescription,
-        sourceofpayment: user.application.sourceofpayment,
-        value: user.application.value,
-        condition: user.application.condition,
-        RM: user.application.RM,
-        ca: user.applicationCA,
+        customerid: user?.customer.id,
+        purpose: submitData.purpose,
+        amount: submitData.amount,
+        tenure: submitData.tenure,
+        contribution: submitData.contribution,
+        profitrate: submitData.profitrate,
+        profitamount: submitData.profitamount,
+        totalamount: submitData.totalamount,
+        monthlyinstallment: submitData.monthlyinstallment,
+        securitydetails: submitData.securitydetails,
+        securitydescription: submitData.securitydescription,
+        sourceofpayment: submitData.sourceofpayment,
+        value: submitData.value,
+        condition: submitData.condition,
+        RM: submitData.RM,
+        ca: submitData.CA,
       });
 
       const { data } = RoleRes;
@@ -232,451 +234,417 @@ const InvoiceDetails = ({ match }) => {
     */
   }, []);
   const { errors, register, handleSubmit } = useForm();
-  const teamList = [
-    { value: "Purposed", label: "Purposed", theme: "purple" },
-    { value: "Approved", label: "Approved", theme: "primary" },
-    { value: "Rejected", label: "Rejected", theme: "red" },
-  ];
+
+  console.log(user);
   return (
     <React.Fragment>
       <Head title="Invoice Detail"></Head>
-      {user && (
-        <Content>
-          <BlockHead>
-            <BlockBetween className="g-3">
-              <BlockHeadContent>
-                <BlockTitle>
-                  Application <strong className="text-primary small">#{user.id}</strong>
-                </BlockTitle>
-                <BlockDes className="text-soft">
-                  <ul className="list-inline">
-                    <li>
-                      Created by: <span className="text-base">{user.application.createdby}</span>
-                    </li>
-                  </ul>
-                </BlockDes>
-              </BlockHeadContent>
-              <BlockHeadContent>
-                <Link to={`${process.env.PUBLIC_URL}/application-attachments/${user.application.id}`}>
-                  <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
-                    <Icon name="file-download"></Icon>
-                    <span>Attached & Application Details</span>
-                  </Button>
-                </Link>
-                <Link to={`${process.env.PUBLIC_URL}/individual-investments`}>
-                  <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
-                    <Icon name="arrow-left"></Icon>
-                    <span>Back</span>
-                  </Button>
-                </Link>
+      <Content>
+        <BlockHead>
+          <BlockBetween className="g-3">
+            <BlockHeadContent>
+              <BlockTitle>
+                Application <strong className="text-primary small">#{user?.application?.id}</strong>
+              </BlockTitle>
+              <BlockDes className="text-soft">
+                <ul className="list-inline">
+                  <li>
+                    Created by: <span className="text-base">{user?.application?.createdby}</span>
+                  </li>
+                </ul>
+              </BlockDes>
+            </BlockHeadContent>
+            <BlockHeadContent>
+              <Link to={`${process.env.PUBLIC_URL}/application-attachments/${user?.application?.id}`}>
+                <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
+                  <Icon name="file-download"></Icon>
+                  <span>Attached & Application Details</span>
+                </Button>
+              </Link>
+              <Link to={`${process.env.PUBLIC_URL}/individual-investments`}>
+                <Button color="light" outline className="bg-white d-none d-sm-inline-flex">
+                  <Icon name="arrow-left"></Icon>
+                  <span>Back</span>
+                </Button>
+              </Link>
 
-                <Link to={`${process.env.PUBLIC_URL}/invoice-list`}>
-                  <Button color="light" outline className="btn-icon bg-white d-inline-flex d-sm-none">
-                    <Icon name="arrow-left"></Icon>
-                  </Button>
-                </Link>
-              </BlockHeadContent>
-            </BlockBetween>
-          </BlockHead>
+              <Link to={`${process.env.PUBLIC_URL}/invoice-list`}>
+                <Button color="light" outline className="btn-icon bg-white d-inline-flex d-sm-none">
+                  <Icon name="arrow-left"></Icon>
+                </Button>
+              </Link>
+            </BlockHeadContent>
+          </BlockBetween>
+        </BlockHead>
 
-          <Block>
-            <div className="invoice">
-              <div className="invoice-action">
-                {userdetails.role.name === "Credit Analyst" && (
-                  <Button
-                    size="lg"
-                    color="primary"
-                    outline
-                    className="btn-icon btn-white btn-dim"
-                    onClick={() => setModal({ facility: true })}
-                  >
-                    <Icon name="plus"></Icon>
-                  </Button>
-                )}
-                {userdetails.role.name === "Sharia" && (
-                  <Button
-                    size="lg"
-                    color="primary"
-                    outline
-                    className="btn-icon btn-white btn-dim"
-                    onClick={() => setModal({ sharia: true })}
-                  >
-                    <Icon name="plus"></Icon>
-                  </Button>
-                )}
-                {userdetails.role.name === "Credit Commitee" && (
-                  <Button
-                    size="lg"
-                    color="primary"
-                    outline
-                    className="btn-icon btn-white btn-dim"
-                    onClick={() => setModal({ voting: true })}
-                  >
-                    <em class="icon ni ni-file-check-fill"></em>
-                  </Button>
-                )}
-                <br />
-                <br />
-                <Link to={`${process.env.PUBLIC_URL}/invoice-print/${user.application.id}`} target="_blank">
-                  <Button size="lg" color="primary" outline className="btn-icon btn-white btn-dim">
-                    <Icon name="printer-fill"></Icon>
-                  </Button>
-                </Link>
+        <Block>
+          <div className="invoice">
+            <div className="invoice-action">
+              {userdetails.role.name === "Credit Analyst" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ facility: true })}
+                >
+                  <Icon name="plus"></Icon>
+                </Button>
+              )}
+              {userdetails.role.name === "Sharia" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ sharia: true })}
+                >
+                  <Icon name="plus"></Icon>
+                </Button>
+              )}
+              {userdetails.role.name === "Credit Commitee" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ voting: true })}
+                >
+                  <em class="icon ni ni-file-check-fill"></em>
+                </Button>
+              )}
+              <br />
+              <br />
+              <Link to={`${process.env.PUBLIC_URL}/invoice-print/${user?.application?.id}`} target="_blank">
+                <Button size="lg" color="primary" outline className="btn-icon btn-white btn-dim">
+                  <Icon name="printer-fill"></Icon>
+                </Button>
+              </Link>
+            </div>
+            <div className="invoice-wrap">
+              <div className="invoice-brand text-center">
+                <img src={LogoDark} alt="" />
               </div>
-              <div className="invoice-wrap">
-                <div className="invoice-brand text-center">
-                  <img src={LogoDark} alt="" />
-                </div>
 
-                <div className="invoice-head">
-                  <div className="invoice-contact">
-                    <span className="overline-title">Application To</span>
-                    <div className="invoice-contact-info">
-                      <h4 className="title">Wubshet Tadesse Maleku</h4>
-                      <ul className="list-plain">
-                        <li>
-                          <Icon name="map-pin-fill"></Icon>
-                          <span>Djibouti</span>
-                        </li>
-                        <li>
-                          <Icon name="call-fill"></Icon>
-                          4416253
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="invoice-desc">
-                    <h3 className="title">Application</h3>
+              <div className="invoice-head">
+                <div className="invoice-contact">
+                  <span className="overline-title">Application To</span>
+                  <div className="invoice-contact-info">
+                    <h4 className="title">{user?.application?.customers.map((sub) => sub?.name)}</h4>
                     <ul className="list-plain">
-                      <li className="invoice-id">
-                        <span>Application ID</span>:<span>{user.application?.id}</span>
+                      <li>
+                        <Icon name="map-pin-fill"></Icon>
+                        <span>{user?.application?.customers.map((sub) => sub?.homeaddress)}</span>
                       </li>
-                      <li className="invoice-date">
-                        <span>Date</span>:<span>{user.application?.createddate}</span>
+                      <li>
+                        <Icon name="call-fill"></Icon>
+                        {user?.application?.customers.map((sub) => sub?.mobile)}
                       </li>
                     </ul>
                   </div>
                 </div>
+                <div className="invoice-desc">
+                  <h3 className="title">Application</h3>
+                  <ul className="list-plain">
+                    <li className="invoice-id">
+                      <span>Application ID</span>:<span>{user?.application?.id}</span>
+                    </li>
+                    <li className="invoice-date">
+                      <span>Date</span>:<span>{new Date(user?.application?.createddate).toLocaleDateString()}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="invoice-bills">
+                <div className="table-responsive">
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.name)}</td>
+                      </tr>
+                      <tr>
+                        <th>Account Number</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.account)}</td>
+                      </tr>
+                      <tr>
+                        <th>Exchange Rate</th>
+                        <td style={{ textAlign: "left" }}>USD=178 DJF</td>
+                      </tr>
+                    </thead>
+                  </table>
 
-                <div className="invoice-bills">
-                  <div className="table-responsive">
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <td style={{ textAlign: "left" }}>Wubshet Tadesse Maleku</td>
-                        </tr>
-                        <tr>
-                          <th>Account Number</th>
-                          <td style={{ textAlign: "left" }}>1004</td>
-                        </tr>
-                        <tr>
-                          <th>Exchange Rate</th>
-                          <td style={{ textAlign: "left" }}>USD=178 DJF</td>
-                        </tr>
-                      </thead>
-                    </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          This application (all amounts in DJF).
+                        </td>
+                      </tr>
+                      <tr>
+                        <th className="w-60">Purpose (purchase of)</th>
+                        <th className="w-30">Amount (DJF)</th>
+                        <th className="w-50">Facility period</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{user?.application?.purpose}</td>
+                        <td>{user?.application?.amount}</td>
+                        <td>{user?.application?.tenure} Months</td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="4"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            This application (all amounts in DJF).
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="w-60">Purpose (purchase of)</th>
-                          <th className="w-30">Amount (DJF)</th>
-                          <th className="w-50">Facility period</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{user.application.purpose}</td>
-                          <td>{user.application.amount}</td>
-                          <td>{user.application.tenure} Months</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Details of financing
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Amount</th>
+                        <th>Customer's Contribution</th>
+                        <th>Amount Requested</th>
+                        <th>Profit Rate</th>
+                        <th>Profite Amount</th>
+                        <th>Tenor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{user?.application?.amount}</td>
+                        <td>{user?.application?.contribution}</td>
+                        <td>{user?.application?.amount}</td>
+                        <td>%{user?.application?.profitrate} p.a</td>
+                        <td>{user?.application?.profitamount}</td>
+                        <td>{user?.application?.tenure} Months</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colSpan="2" style={{ fontWeight: 800 }}>
+                          Total Amount (Principal + Profit)
+                        </td>
+                        <td>${user?.application?.totalamount}</td>
+                        <td colSpan="2" style={{ fontWeight: 800 }}>
+                          Monthly Installment
+                        </td>
+                        <td>${user?.application?.totalamount}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Existing Facilities at EAB (all figures in DJF)
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Facility type</th>
+                        <th>Amount Disbursed</th>
+                        <th>Outstanding</th>
+                        <th>Profit Rate</th>
+                        <th>Total Profit</th>
+                        <th>Maturity Date</th>
+                        <th>Monthly Installment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(user?.bank === "EAB" && (
                         <tr>
-                          <td
-                            colSpan="6"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Details of financing
-                          </td>
+                          <th scope="row">{user?.facility?.facilityType}</th>
+                          <td>{user?.facility?.amountdisbursed}</td>
+                          <td>{user?.facility?.outstanding}</td>
+                          <td>{user?.facility?.exprofitrate}</td>
+                          <td>{user?.facility?.totalprofit}</td>
+                          <td>{user?.facility?.maturitydate}</td>
+                          <td>{user?.facility?.exmonthlyinstallment}</td>
                         </tr>
+                      )) || (
                         <tr>
-                          <th>Amount</th>
-                          <th>Customer's Contribution</th>
-                          <th>Amount Requested</th>
-                          <th>Profit Rate</th>
-                          <th>Profite Amount</th>
-                          <th>Tenor</th>
+                          <th scope="row">Nill</th>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{user.application.amount}</td>
-                          <td>{user.application.contribution}</td>
-                          <td>{user.application.amount}</td>
-                          <td>%{user.application.profitrate} p.a</td>
-                          <td>{user.application.profitamount}</td>
-                          <td>{user.application.tenure} Months</td>
-                        </tr>
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td colSpan="2" style={{ fontWeight: 800 }}>
-                            Total Amount (Principal + Profit)
-                          </td>
-                          <td>${user.application.totalamount}</td>
-                          <td colSpan="2" style={{ fontWeight: 800 }}>
-                            Monthly Installment
-                          </td>
-                          <td>${user.application.totalamount}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                      )}
+                    </tbody>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Existing Facilities at other banks (all figures in DJF)
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Facility type</th>
+                        <th>Amount Disbursed</th>
+                        <th>Outstanding</th>
+                        <th>Profit Rate</th>
+                        <th>Total Profit</th>
+                        <th>Maturity Date</th>
+                        <th>Monthly Installment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(user?.bank === "Other" && (
                         <tr>
-                          <td
-                            colSpan="7"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Existing Facilities at EAB (all figures in DJF)
-                          </td>
+                          <th scope="row">{user?.facility.facilityType}</th>
+                          <td>{user?.facility.amountdisbursed}</td>
+                          <td>{user?.facility.outstanding}</td>
+                          <td>{user?.facility.exprofitrate}</td>
+                          <td>{user?.facility.totalprofit}</td>
+                          <td>{user?.facility.maturitydate}</td>
+                          <td>{user?.facility.exmonthlyinstallment}</td>
                         </tr>
+                      )) || (
                         <tr>
-                          <th>Facility type</th>
-                          <th>Amount Disbursed</th>
-                          <th>Outstanding</th>
-                          <th>Profit Rate</th>
-                          <th>Total Profit</th>
-                          <th>Maturity Date</th>
-                          <th>Monthly Installment</th>
+                          <th scope="row">Nill</th>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
+                          <td>Nill</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {(user.bank === "EAB" && (
-                          <tr>
-                            <th scope="row">{user.facility.facilityType}</th>
-                            <td>{user.facility.amountdisbursed}</td>
-                            <td>{user.facility.outstanding}</td>
-                            <td>{user.facility.exprofitrate}</td>
-                            <td>{user.facility.totalprofit}</td>
-                            <td>{user.facility.maturitydate}</td>
-                            <td>{user.facility.exmonthlyinstallment}</td>
-                          </tr>
-                        )) || (
-                          <tr>
-                            <th scope="row">Nill</th>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                      )}
+                    </tbody>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="7"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Existing Facilities at other banks (all figures in DJF)
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>Facility type</th>
-                          <th>Amount Disbursed</th>
-                          <th>Outstanding</th>
-                          <th>Profit Rate</th>
-                          <th>Total Profit</th>
-                          <th>Maturity Date</th>
-                          <th>Monthly Installment</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(user.bank === "Other" && (
-                          <tr>
-                            <th scope="row">{user.facility.facilityType}</th>
-                            <td>{user.facility.amountdisbursed}</td>
-                            <td>{user.facility.outstanding}</td>
-                            <td>{user.facility.exprofitrate}</td>
-                            <td>{user.facility.totalprofit}</td>
-                            <td>{user.facility.maturitydate}</td>
-                            <td>{user.facility.exmonthlyinstallment}</td>
-                          </tr>
-                        )) || (
-                          <tr>
-                            <th scope="row">Nill</th>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                            <td>Nill</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Total exposure (limit issue)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Total Principal outstanding ( existing facilities at EAB) in DJF</td>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="2"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Total exposure (limit issue)
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Total Principal outstanding ( existing facilities at EAB) in DJF</td>
-                          <td>{user.facility?.outstanding}</td>
-                        </tr>
-                        <tr>
-                          <td>Total amount (existing facilities and the proposed facility in USD</td>
-                          <td>{user.facility?.outstanding + user.application.amount}</td>
-                        </tr>
-                      </thead>
-                    </table>
+                        {user?.facility?.outstanding === "" ? <td>{0}</td> : <td>{user?.facility?.outstanding}</td>}
+                      </tr>
+                      <tr>
+                        <td>Total amount (existing facilities and the proposed facility in USD</td>
+                        <td>{user?.facility?.outstanding + user?.application?.amount}</td>
+                      </tr>
+                    </thead>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="2"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Debt Burden Ratio
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Monthly Installment under proposed facility</td>
-                          <td>{user.application.monthlyinstallment}</td>
-                        </tr>
-                        <tr>
-                          <td>Monthly salary</td>
-                          <td>800$</td>
-                        </tr>
-                        <tr>
-                          <td>DBR</td>
-                          <td>25%</td>
-                        </tr>
-                      </thead>
-                    </table>
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="2"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Source of payment
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>{user.application.sourceofpayment}</td>
-                        </tr>
-                      </thead>
-                    </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Debt Burden Ratio
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Monthly Installment under proposed facility</td>
+                        <td>{user?.application?.monthlyinstallment}</td>
+                      </tr>
+                      <tr>
+                        <td>Monthly salary</td>
+                        <td>{user?.application?.customers.map((sub) => sub.netmonthsalary)}</td>
+                      </tr>
+                      <tr>
+                        <td>DBR</td>
+                        <td>25%</td>
+                      </tr>
+                    </thead>
+                  </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Source of payment
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>{user?.application?.sourceofpayment}</td>
+                      </tr>
+                    </thead>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="3"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Proposed Security (all values in DJF)
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="w-60">Details</th>
-                          <th className="w-40">Details/Description/Location</th>
-                          <th>Value</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{user.application.securitydetails}</td>
-                          <td>{user.application.securitydescription}</td>
-                          <td>{user.application.value}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Proposed Security (all values in DJF)
+                        </td>
+                      </tr>
+                      <tr>
+                        <th className="w-60">Details</th>
+                        <th className="w-40">Details/Description/Location</th>
+                        <th>Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{user?.application?.securitydetails}</td>
+                        <td>{user?.application?.securitydescription}</td>
+                        <td>{user?.application?.value}</td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="2"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Credit Analyst Recommendation
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Mohamed Kamil Signature: .......................</td>
-                          <td>Date: ..........................</td>
-                        </tr>
-                        <tr>
-                          <td>{user.application.ca}</td>
-                        </tr>
-                      </thead>
-                    </table>
-                    <table className="table table-striped" border="1">
-                      <thead>
-                        <tr>
-                          <td
-                            colSpan="2"
-                            style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
-                          >
-                            Credit Commitee
-                          </td>
-                        </tr>
-                        <tr>
-                          {user.commit?.map((e) => (
-                            <td style={{ textAlign: "left", fontWeight: 800 }}>{e.name}</td>
-                          ))}
-                        </tr>
-                        <tr>
-                          {user.commit?.map((e) => (
-                            <td style={{ textAlign: "left", fontWeight: 500 }}>{e?.title?.title}</td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td style={{ height: 50 }}> </td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>{" "}
-                      </thead>
-                    </table>
-                    <div className="nk-notes ff-italic fs-14px text-secondary">{user.ca}</div>
-                  </div>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Credit Analyst Recommendation
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Mohamed Kamil Signature: .......................</td>
+                        <td>Date: ..........................</td>
+                      </tr>
+                      <tr>
+                        <td>{user?.application?.ca}</td>
+                      </tr>
+                    </thead>
+                  </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Credit Commitee
+                        </td>
+                      </tr>
+                      <tr>
+                        {user?.commit?.map((e) => (
+                          <td style={{ textAlign: "left", fontWeight: 800 }}>{e.name}</td>
+                        ))}
+                      </tr>
+                      <tr>
+                        {user?.commit?.map((e) => (
+                          <td style={{ textAlign: "left", fontWeight: 500 }}>{e?.title?.title}</td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td style={{ height: 50 }}> </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>{" "}
+                    </thead>
+                  </table>
+                  <div className="nk-notes ff-italic fs-14px text-secondary">{user?.ca}</div>
                 </div>
               </div>
             </div>
-          </Block>
-        </Content>
-      )}
+          </div>
+        </Block>
+      </Content>
+      );
       <Modal
         isOpen={modal.facility}
         toggle={() => setModal({ facility: false })}
@@ -782,7 +750,6 @@ const InvoiceDetails = ({ match }) => {
           </div>
         </ModalBody>
       </Modal>
-
       <Modal
         isOpen={modal.voting}
         toggle={() => setModal({ voting: false })}

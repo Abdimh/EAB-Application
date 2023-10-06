@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "../layout/head/Head";
 import Content from "../layout/content/Content";
 import SalesStatistics from "../components/partials/default/SalesStatistics";
@@ -25,9 +25,11 @@ import {
   DefaultRevenueChart,
   DefaultVisitorChart,
 } from "../components/partials/charts/default/DefaultCharts";
+import instanceAxios from "../../../utils/AxiosSetup";
 
 const Homepage = () => {
   const [sm, updateSm] = useState(false);
+
   return (
     <React.Fragment>
       <Head title="Homepage"></Head>
@@ -36,7 +38,7 @@ const Homepage = () => {
           <BlockBetween>
             <BlockHeadContent>
               <BlockTitle page tag="h3">
-                Dashboards
+                Dashboardssssss
               </BlockTitle>
             </BlockHeadContent>
             <BlockHeadContent>
@@ -117,7 +119,7 @@ const Homepage = () => {
                 percentChange={"4.63"}
                 up={true}
                 chart={<DefaultOrderChart />}
-                amount={"1975"}
+                amount={"2000"}
               />
             </Col>
             <Col xxl="3" sm="6">

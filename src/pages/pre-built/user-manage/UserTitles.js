@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
 import { findUpper } from "../../../utils/Utils";
-import { userData, filterRole, filterStatus } from "./UserData";
+
 import {
   DropdownMenu,
   DropdownToggle,
@@ -90,7 +90,7 @@ const UserTitles = () => {
   useEffect(() => {
     getTitles();
     let newData;
-    newData = userData.map((item) => {
+    newData = data.map((item) => {
       item.checked = false;
       return item;
     });
@@ -100,7 +100,7 @@ const UserTitles = () => {
   // Changing state value when searching name
   useEffect(() => {
     if (onSearchText !== "") {
-      const filteredObject = userData.filter((item) => {
+      const filteredObject = data.filter((item) => {
         return (
           item.name.toLowerCase().includes(onSearchText.toLowerCase()) ||
           item.email.toLowerCase().includes(onSearchText.toLowerCase())
@@ -108,7 +108,7 @@ const UserTitles = () => {
       });
       setData([...filteredObject]);
     } else {
-      setData([...userData]);
+      setData([...data]);
     }
   }, [onSearchText, setData]);
 
@@ -482,13 +482,13 @@ const UserTitles = () => {
                                       <Col size="6">
                                         <FormGroup>
                                           <label className="overline-title overline-title-alt">Role</label>
-                                          <RSelect options={filterRole} placeholder="Any Role" />
+                                          <RSelect placeholder="Any Role" />
                                         </FormGroup>
                                       </Col>
                                       <Col size="6">
                                         <FormGroup>
                                           <label className="overline-title overline-title-alt">Status</label>
-                                          <RSelect options={filterStatus} placeholder="Any Status" />
+                                          <RSelect placeholder="Any Status" />
                                         </FormGroup>
                                       </Col>
                                       <Col size="12">

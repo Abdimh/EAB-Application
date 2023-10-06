@@ -66,6 +66,7 @@ export const CustomersList = () => {
     eabopenedaccount: "",
     liabilities: "",
     gender: "",
+    dob: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage] = useState(7);
@@ -125,6 +126,7 @@ export const CustomersList = () => {
       eabopenedaccount,
       liabilities,
       gender,
+      dob,
     } = submitData;
     console.log(submitData);
     try {
@@ -146,6 +148,7 @@ export const CustomersList = () => {
         eabopenedaccount: eabopenedaccount,
         liabilities: liabilities,
         gender: gender,
+        dob: dob,
       });
 
       const { data } = RoleRes;
@@ -166,27 +169,7 @@ export const CustomersList = () => {
         }
       }
     }
-    let submittedData = {
-      id: data.length + 1,
-      name: name,
-      account: account,
-      employmenttype: employmenttype,
-      employer: employer,
-      position: position,
-      homeaddress: homeaddress,
-      mobile: mobile,
-      netmonthsalary: netmonthsalary,
-      datejoining: datejoining,
-      preemployer: preemployer,
-      otherincome: otherincome,
-      salarycrediteab: salarycrediteab,
-      citizenship: citizenship,
-      otherbanks: otherbanks,
-      eabopenedaccount: eabopenedaccount,
-      liabilities: liabilities,
-      gender: gender,
-    };
-    setData([submittedData, ...data]);
+    getcustomers();
     resetForm();
     setModal({ edit: false }, { add: false });
   };
@@ -212,6 +195,7 @@ export const CustomersList = () => {
       eabopenedaccount,
       liabilities,
       gender,
+      dob,
     } = sData;
     console.log(sData);
     try {
@@ -234,6 +218,7 @@ export const CustomersList = () => {
         eabopenedaccount: eabopenedaccount,
         liabilities: liabilities,
         gender: gender,
+        dob: dob,
       });
 
       const { data } = RoleRes;
@@ -254,35 +239,7 @@ export const CustomersList = () => {
         }
       }
     }
-
-    let submittedData;
-    let newitems = data;
-    newitems.forEach((item) => {
-      if (item.id === editId) {
-        submittedData = {
-          id: item.id,
-          name: name,
-          account: account,
-          employmenttype: employmenttype,
-          employer: employer,
-          position: position,
-          homeaddress: homeaddress,
-          mobile: mobile,
-          netmonthsalary: netmonthsalary,
-          datejoining: datejoining,
-          preemployer: preemployer,
-          otherincome: otherincome,
-          salarycrediteab: salarycrediteab,
-          citizenship: citizenship,
-          otherbanks: otherbanks,
-          eabopenedaccount: eabopenedaccount,
-          liabilities: liabilities,
-          gender: gender,
-        };
-      }
-    });
-    let index = newitems.findIndex((item) => item.id === editId);
-    newitems[index] = submittedData;
+    getcustomers();
     resetForm();
     setModal({ edit: false });
   };
@@ -310,7 +267,9 @@ export const CustomersList = () => {
           eabopenedaccount: item.eabopenedaccount,
           liabilities: item.liabilities,
           gender: item.gender,
+          dob: item.dob,
         });
+
         setModal({ edit: true }, { add: false });
         setEditedId(id);
       }
@@ -911,6 +870,22 @@ export const CustomersList = () => {
                       </div>
                     </FormGroup>
                   </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Date of brith</label>
+                      <input
+                        type="date"
+                        name="dob"
+                        defaultValue={formData.dob}
+                        placeholder="Enter net month salary"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.dob && <span className="invalid">{errors.dob.message}</span>}
+                    </FormGroup>
+                  </Col>
                   <Col size="12">
                     <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                       <li>
@@ -1226,7 +1201,22 @@ export const CustomersList = () => {
                       {errors.liabilities && <span className="invalid">{errors.liabilities.message}</span>}
                     </FormGroup>
                   </Col>
-
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Date of brith</label>
+                      <input
+                        type="date"
+                        name="dob"
+                        defaultValue={formData.dob}
+                        placeholder="Enter net month salary"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.dob && <span className="invalid">{errors.dob.message}</span>}
+                    </FormGroup>
+                  </Col>
                   <Col md="6">
                     <FormGroup>
                       <label className="form-label">Gender</label>

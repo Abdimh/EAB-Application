@@ -3,7 +3,7 @@ import { DropdownToggle, DropdownMenu, Dropdown } from "reactstrap";
 import { Icon } from "../../../../components/Component";
 import { LinkList, LinkItem } from "../../../../components/links/Links";
 import UserAvatar from "../../../../components/user/UserAvatar";
-import { userData } from "../../../../pages/pre-built/user-manage/UserData";
+
 import { useEffect } from "react";
 import { findUpper } from "../../../../utils/Utils";
 

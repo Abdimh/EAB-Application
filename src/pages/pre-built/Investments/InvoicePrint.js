@@ -6,6 +6,7 @@ import LogoDark from "../../../images/log.png";
 import { invoiceData } from "./Invoice";
 import axios, { AxiosError, isAxiosError } from "axios";
 import instanceAxios from "../../../utils/AxiosSetup";
+import moment from "moment";
 const InvoicePrint = ({ match }) => {
   const [data] = useState(invoiceData);
   const [user, setUser] = useState();
@@ -51,43 +52,54 @@ const InvoicePrint = ({ match }) => {
                 <div className="invoice-brand text-center">
                   <img src={LogoDark} alt="" />
                 </div>
-
                 <div className="invoice-head">
                   <div className="invoice-contact">
-                    <span className="overline-title">Invoice To</span>
+                    <span className="overline-title">Application To</span>
                     <div className="invoice-contact-info">
-                      <h4 className="title">{user.customername}</h4>
+                      <h4 className="title">{user.application.customers.map((sub) => sub.name)}</h4>
                       <ul className="list-plain">
                         <li>
                           <Icon name="map-pin-fill"></Icon>
-                          <span>
-                            House #65, 4328 Marion Street
-                            <br />
-                            Newbury, VT 05051
-                          </span>
+                          <span>{user.application.customers.map((sub) => sub.homeaddress)}</span>
                         </li>
                         <li>
                           <Icon name="call-fill"></Icon>
-                          <span>{user.phone}</span>
+                          {user.application.customers.map((sub) => sub.mobile)}
                         </li>
                       </ul>
                     </div>
                   </div>
                   <div className="invoice-desc">
-                    <h5 className="title">Application Details</h5>
+                    <h3 className="title">Application</h3>
                     <ul className="list-plain">
                       <li className="invoice-id">
-                        <span>App ID</span>:<span>{user.orderId}</span>
+                        <span>Application ID</span>:<span>{user?.application?.id}</span>
                       </li>
                       <li className="invoice-date">
-                        <span>Date</span>:<span>{user.id}</span>
+                        <span>Date</span>:<span>{user?.application?.createddate}</span>
                       </li>
                     </ul>
                   </div>
                 </div>
-
                 <div className="invoice-bills">
                   <div className="table-responsive">
+                    <table className="table table-striped" border="1">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <td style={{ textAlign: "left" }}>{user.application.customers.map((sub) => sub.name)}</td>
+                        </tr>
+                        <tr>
+                          <th>Account Number</th>
+                          <td style={{ textAlign: "left" }}>{user.application.customers.map((sub) => sub.account)}</td>
+                        </tr>
+                        <tr>
+                          <th>Exchange Rate</th>
+                          <td style={{ textAlign: "left" }}>USD=178 DJF</td>
+                        </tr>
+                      </thead>
+                    </table>
+
                     <table className="table table-striped" border="1">
                       <thead>
                         <tr>
@@ -95,7 +107,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="4"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            1. This application (all amounts in DJF).
+                            This application (all amounts in DJF).
                           </td>
                         </tr>
                         <tr>
@@ -106,9 +118,9 @@ const InvoicePrint = ({ match }) => {
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.purpose}</td>
-                          <td>{user.amount}</td>
-                          <td>{user.tenure} Months</td>
+                          <td>{user?.application?.purpose}</td>
+                          <td>{user?.application?.amount}</td>
+                          <td>{user?.application?.tenure} Months</td>
                         </tr>
                       </tbody>
                     </table>
@@ -120,7 +132,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="6"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            2. Details of financing
+                            Details of financing
                           </td>
                         </tr>
                         <tr>
@@ -134,12 +146,12 @@ const InvoicePrint = ({ match }) => {
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.amount}</td>
-                          <td>{user.contribution}</td>
-                          <td>{user.amount}</td>
-                          <td>%{user.profitrate} p.a</td>
-                          <td>{user.profitamount}</td>
-                          <td>{user.tenure} Months</td>
+                          <td>{user?.application?.amount}</td>
+                          <td>{user?.application?.contribution}</td>
+                          <td>{user?.application?.amount}</td>
+                          <td>%{user?.application?.profitrate} p.a</td>
+                          <td>{user?.application?.profitamount}</td>
+                          <td>{user?.application?.tenure} Months</td>
                         </tr>
                       </tbody>
                       <tfoot>
@@ -147,11 +159,11 @@ const InvoicePrint = ({ match }) => {
                           <td colSpan="2" style={{ fontWeight: 800 }}>
                             Total Amount (Principal + Profit)
                           </td>
-                          <td>${user.totalamount}</td>
+                          <td>${user?.application?.totalamount}</td>
                           <td colSpan="2" style={{ fontWeight: 800 }}>
                             Monthly Installment
                           </td>
-                          <td>${user.totalamount}</td>
+                          <td>${user?.application?.totalamount}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -163,7 +175,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="7"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            3. Existing Facilities at EAB (all figures in DJF)
+                            Existing Facilities at EAB (all figures in DJF)
                           </td>
                         </tr>
                         <tr>
@@ -177,15 +189,15 @@ const InvoicePrint = ({ match }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {(user.bank === "EAB" && (
+                        {(user?.bank === "EAB" && (
                           <tr>
-                            <th scope="row">{user.facilityType}</th>
-                            <td>{user.amountdisbursed}</td>
-                            <td>{user.outstanding}</td>
-                            <td>{user.exprofitrate}</td>
-                            <td>{user.totalprofit}</td>
-                            <td>{user.maturitydate}</td>
-                            <td>{user.exmonthlyinstallment}</td>
+                            <th scope="row">{user?.facility?.facilityType}</th>
+                            <td>{user?.facility?.amountdisbursed}</td>
+                            <td>{user?.facility?.outstanding}</td>
+                            <td>{user?.facility?.exprofitrate}</td>
+                            <td>{user?.facility?.totalprofit}</td>
+                            <td>{user?.facility?.maturitydate}</td>
+                            <td>{user?.facility?.exmonthlyinstallment}</td>
                           </tr>
                         )) || (
                           <tr>
@@ -208,7 +220,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="7"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            3. Existing Facilities at other banks (all figures in DJF)
+                            Existing Facilities at other banks (all figures in DJF)
                           </td>
                         </tr>
                         <tr>
@@ -222,15 +234,15 @@ const InvoicePrint = ({ match }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {(user.bank === "Other" && (
+                        {(user?.bank === "Other" && (
                           <tr>
-                            <th scope="row">{user.facilityType}</th>
-                            <td>{user.amountdisbursed}</td>
-                            <td>{user.outstanding}</td>
-                            <td>{user.exprofitrate}</td>
-                            <td>{user.totalprofit}</td>
-                            <td>{user.maturitydate}</td>
-                            <td>{user.exmonthlyinstallment}</td>
+                            <th scope="row">{user?.facility.facilityType}</th>
+                            <td>{user?.facility.amountdisbursed}</td>
+                            <td>{user?.facility.outstanding}</td>
+                            <td>{user?.facility.exprofitrate}</td>
+                            <td>{user?.facility.totalprofit}</td>
+                            <td>{user?.facility.maturitydate}</td>
+                            <td>{user?.facility.exmonthlyinstallment}</td>
                           </tr>
                         )) || (
                           <tr>
@@ -253,16 +265,16 @@ const InvoicePrint = ({ match }) => {
                             colSpan="2"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            4. Total exposure (limit issue)
+                            Total exposure (limit issue)
                           </td>
                         </tr>
                         <tr>
                           <td>Total Principal outstanding ( existing facilities at EAB) in DJF</td>
-                          <td>{user.outstanding}</td>
+                          <td>{user?.facility?.outstanding}</td>
                         </tr>
                         <tr>
                           <td>Total amount (existing facilities and the proposed facility in USD</td>
-                          <td>{user.outstanding + user.amount}</td>
+                          <td>{user?.facility?.outstanding + user?.application?.amount}</td>
                         </tr>
                       </thead>
                     </table>
@@ -274,16 +286,16 @@ const InvoicePrint = ({ match }) => {
                             colSpan="2"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            5. Debt Burden Ratio
+                            Debt Burden Ratio
                           </td>
                         </tr>
                         <tr>
                           <td>Monthly Installment under proposed facility</td>
-                          <td>{user.monthlyinstallment}</td>
+                          <td>{user?.application?.monthlyinstallment}</td>
                         </tr>
                         <tr>
                           <td>Monthly salary</td>
-                          <td>{user.netmonthsalary}</td>
+                          <td>{user.application.customers.map((sub) => sub.netmonthsalary)}</td>
                         </tr>
                         <tr>
                           <td>DBR</td>
@@ -298,11 +310,11 @@ const InvoicePrint = ({ match }) => {
                             colSpan="2"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            6. Source of payment
+                            Source of payment
                           </td>
                         </tr>
                         <tr>
-                          <td>{user.sourceofpayment}</td>
+                          <td>{user?.application?.sourceofpayment}</td>
                         </tr>
                       </thead>
                     </table>
@@ -314,7 +326,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="3"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            7. Proposed Security (all values in DJF)
+                            Proposed Security (all values in DJF)
                           </td>
                         </tr>
                         <tr>
@@ -325,9 +337,9 @@ const InvoicePrint = ({ match }) => {
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{user.securitydetails}</td>
-                          <td>{user.securitydescription}</td>
-                          <td>{user.value}</td>
+                          <td>{user?.application?.securitydetails}</td>
+                          <td>{user?.application?.securitydescription}</td>
+                          <td>{user?.application?.value}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -339,7 +351,7 @@ const InvoicePrint = ({ match }) => {
                             colSpan="2"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            8. Credit Analyst Recommendation
+                            Credit Analyst Recommendation
                           </td>
                         </tr>
                         <tr>
@@ -347,7 +359,7 @@ const InvoicePrint = ({ match }) => {
                           <td>Date: ..........................</td>
                         </tr>
                         <tr>
-                          <td>{user.ca}</td>
+                          <td>{user?.application?.ca}</td>
                         </tr>
                       </thead>
                     </table>
@@ -358,8 +370,18 @@ const InvoicePrint = ({ match }) => {
                             colSpan="2"
                             style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
                           >
-                            9. Credit Commitee
+                            Credit Commitee
                           </td>
+                        </tr>
+                        <tr>
+                          {user?.commit?.map((e) => (
+                            <td style={{ textAlign: "left", fontWeight: 800 }}>{e.name}</td>
+                          ))}
+                        </tr>
+                        <tr>
+                          {user?.commit?.map((e) => (
+                            <td style={{ textAlign: "left", fontWeight: 500 }}>{e?.title?.title}</td>
+                          ))}
                         </tr>
                         <tr>
                           <td style={{ height: 50 }}> </td>
@@ -367,19 +389,10 @@ const InvoicePrint = ({ match }) => {
                           <td></td>
                           <td></td>
                           <td></td>
-                        </tr>
-                        <tr>
-                          <td>Ismail Guyo CEO</td>
-                          <td>Abdiaziz Mohamed Director Operations</td>
-                          <td>Mohamed Kamil: CRCO</td>
-                          <td>Saad Moussa Djama: Deputy CEO</td>
-                          <td>Ibraahim Rashid Jaffar: CFO</td>
-                        </tr>
+                        </tr>{" "}
                       </thead>
                     </table>
-                    <div className="nk-notes ff-italic fs-12px text-soft">
-                      Invoice was created on a computer and is valid without the signature and seal.
-                    </div>
+                    <div className="nk-notes ff-italic fs-14px text-secondary">{user?.ca}</div>
                   </div>
                 </div>
               </div>

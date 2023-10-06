@@ -38,6 +38,7 @@ import DatePicker from "react-datepicker";
 import { CustomToast } from "../../../utils/CustomToast";
 import { BadRequest } from "../../../utils/Error";
 import moment from "moment";
+import { Alert, UncontrolledAlert } from "reactstrap";
 import { log } from "util";
 //import { Value } from "sass";
 const InvoiceList = () => {
@@ -52,8 +53,10 @@ const InvoiceList = () => {
   const [customers, setCustomers] = useState([]);
   const [customerValue, setCustomerValue] = useState("");
   const [statusValue, setstatusValue] = useState("");
+  const [filevaue, setFileValue] = useState("");
   const [facilityValue, setFacilityValue] = useState("");
   const [selected, setSelected] = useState([]);
+  const [selectedcustomers, setSelectedCustomers] = useState([]);
   const [user, setUser] = useState({
     expireIn: Number,
     expireTimeStamp: String,
@@ -62,6 +65,7 @@ const InvoiceList = () => {
     token: String,
     userName: String,
   });
+
   const [modal, setModal] = useState({
     edit: false,
     add: false,
@@ -81,26 +85,35 @@ const InvoiceList = () => {
     start: new Date(),
     end: null,
   });
+  const [amount, setAmount] = useState();
+  const [profitAmount, setProfit] = useState();
+  const [totalAmount, setTotalAmount] = useState();
+  const [rate, setRate] = useState({
+    start: new Date(),
+    end: null,
+  });
   const [dateFrom, setDateFrom] = useState(new Date(Date.now()));
   const [dateTo, setDateTo] = useState(new Date(Date.now()));
   const [id, setId] = useState("");
   const [artists, setArtists] = useState([]);
   const [formData, setFormData] = useState({
     id: 0,
-    customerid: 0,
+    customerid: Number,
     purpose: "",
-    amount: 0,
-    facilityperiod: 0,
+    amount: Number,
+    facilityperiod: Number,
     profitrate: "",
-    profitamount: 0,
-    totalamount: 0,
-    monthlyinstallment: 0,
+    profitamount: Number,
+    totalamount: Number,
+    monthlyinstallment: Number,
     sourceofpayment: "",
     securitydetails: "",
     securitydescription: "",
-    value: 0,
+    value: Number,
     contributio: 0,
     status: "",
+    statuscheck: "",
+    type: "",
   });
   // Sorting data
   const sortFunc = () => {
@@ -132,15 +145,28 @@ const InvoiceList = () => {
   // function to reset the form
   const resetForm = () => {
     setFormData({
-      title: "",
-      subtitle: "",
-      description: "",
-      lead: "",
-      tasks: 0,
-      totalTask: 0,
-      team: [],
-      date: new Date(),
+      id: 0,
+      customerid: Number,
+      purpose: "",
+      amount: Number,
+      facilityperiod: Number,
+      profitrate: "",
+      profitamount: Number,
+      totalamount: Number,
+      monthlyinstallment: Number,
+      sourceofpayment: "",
+      securitydetails: "",
+      securitydescription: "",
+      value: Number,
+      contributio: 0,
+      status: "",
+      statuscheck: "",
+      type: "",
     });
+    setProfit();
+    setAmount();
+    setTotalAmount();
+    setRate();
   };
 
   // function to close the form modal
@@ -175,6 +201,8 @@ const InvoiceList = () => {
       maturitydate,
       monthlyinstallmentexist,
       bank,
+      filetype,
+      statuscheck,
     } = sData;
     console.log(sData);
     try {
@@ -204,6 +232,8 @@ const InvoiceList = () => {
         facilitytype: facilitytype,
         bank: bank,
         status: status,
+        checkstatus: statuscheck,
+        filetype: filetype,
       });
 
       const { data } = RoleRes;
@@ -244,11 +274,11 @@ const InvoiceList = () => {
     const Endpoint = `FullApplications/${id}`;
     const response = await instanceAxios.get(Endpoint);
     const data = response.data;
-    console.log("Edit Data from API", data);
-
+    setSelectedCustomers(data);
+    // console.log(data.application.customers);
     setFormData({
       id: data.application.id,
-      customerid: data.customer.customerid,
+      //   customerid: data.customer.customerid,
       purpose: data.application.purpose,
       amount: data.application.amount,
       tenure: data.application.tenure,
@@ -271,6 +301,8 @@ const InvoiceList = () => {
       facilitytype: data.facility?.facilityType,
       bank: data.facility?.bank,
       status: data.application.status,
+      statuscheck: data.application.checkstatus,
+      filetype: data.application.filetype,
     });
 
     if (data.facility?.facilityType === null) {
@@ -288,9 +320,10 @@ const InvoiceList = () => {
     fetchdata();
     getCustomers();
     getApplications();
+    resetForm();
   }, []);
   // submit function to add a new item
-  console.log(data);
+
   const onFormSubmit = async (submitData) => {
     const array = [{ id: 1 }, { id: 2 }];
     const {
@@ -308,8 +341,8 @@ const InvoiceList = () => {
       value,
       contribution,
       status,
-
-      facilitytype,
+      statuscheck,
+      type,
       amountdisbursed,
       outstanding,
       profitrateexist,
@@ -344,9 +377,12 @@ const InvoiceList = () => {
         totalprofit: totalprofit,
         maturitydate: maturitydate,
         monthlyinstallmentexist: monthlyinstallmentexist,
-        facilitytype: facilitytype,
+        facilitytype: submitData.facilitytype,
         bank: bank,
+        checkstatus: submitData.statuscheck,
+        filetype: submitData.type,
       };
+
       const RoleRes = await instanceAxios
         .post("IndividualApp", data, {
           headers: {
@@ -357,10 +393,10 @@ const InvoiceList = () => {
           console.log(response.data);
         });
 
-      // console.log(data);
-      // 200 Data
-
       CustomToast("Successfully Added", false, "success");
+      resetForm();
+
+      console.log(data);
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -414,9 +450,21 @@ const InvoiceList = () => {
     return <option value={item.id}>{item.name}</option>;
   });
 
+  const { maths, physics, chem } = data;
+  const per = ((data.maths + data.physics + data.chem) / 100) * 100;
+
   const onRangeChange = (dates) => {
     const [start, end] = dates;
     setRangeDate({ start: start, end: end });
+  };
+  const changeRate = (e) => {
+    const rate = e.target.value;
+    const prof = (amount * rate) / 100;
+    setProfit(prof);
+
+    const total = parseInt(amount) + parseInt(prof);
+    setTotalAmount(total);
+    // setFirstVal(e.target.value * 2);
   };
 
   const selectedHandler = (id) => {
@@ -431,8 +479,7 @@ const InvoiceList = () => {
 
     setSelected(newSelected);
   };
-  let nextId = 0;
-  console.log();
+
   return (
     <React.Fragment>
       <Head title="Invoice List"></Head>
@@ -630,7 +677,7 @@ const InvoiceList = () => {
                                 <span className="tb-odr-id">
                                   <Link to={`${process.env.PUBLIC_URL}/invoice-details/${item.id}`}>#{item.id}</Link>
                                 </span>
-                                <span className="tb-odr-date">{item.customername}</span>
+                                <span className="tb-odr-date">{item?.customers?.map((sub) => sub?.name)}</span>
                               </td>
                               <td className="tb-odr-amount">
                                 <span className="tb-odr-total">
@@ -660,7 +707,7 @@ const InvoiceList = () => {
                                       className="btn btn-dim"
                                       onClick={() => onEditClick(item.id)}
                                     >
-                                      Edit {console.log(item)}
+                                      Edit
                                     </Button>
                                   )}
                                   <Link to={`${process.env.PUBLIC_URL}/application-details/${item.id}`}>
@@ -731,6 +778,7 @@ const InvoiceList = () => {
                         return <option value={employee.id}>{employee.name}</option>;
                       })}
                     </select>
+                    {errors.account && <span className="invalid">{errors.purpose.message}</span>}
                   </div>
                 </Col>
 
@@ -746,380 +794,426 @@ const InvoiceList = () => {
                     </ul>
                   );
                 })}
-                <br />
-                <br />
-                <Form className="row gy-4" onSubmit={handleSubmit(onFormSubmit)}>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Purpose</label>
-                      <input
-                        type="text"
-                        name="purpose"
-                        defaultValue={formData.purpose}
-                        placeholder="Enter purpose"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.account && <span className="invalid">{errors.purpose.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Amount</label>
-                      <input
-                        type="text"
-                        name="amount"
-                        defaultValue={formData.amount}
-                        placeholder="Enter amount"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.employmenttype && <span className="invalid">{errors.amount.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Facility Period </label>
-                      <input
-                        type="text"
-                        name="tenure"
-                        defaultValue={formData.tenure}
-                        placeholder="Enter facility period"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.tenure && <span className="invalid">{errors.tenure.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Profit Rate</label>
-                      <input
-                        type="text"
-                        name="profitrate"
-                        defaultValue={formData.profitrate}
-                        placeholder="Enter profit rate"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.position && <span className="invalid">{errors.profitrate.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Profit Amount</label>
-                      <input
-                        type="text"
-                        name="profitamount"
-                        defaultValue={formData.profitamount}
-                        placeholder="Enter profit amount"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.homeaddress && <span className="invalid">{errors.profitamount.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Total Amount</label>
-                      <input
-                        type="text"
-                        name="totalamount"
-                        defaultValue={formData.totalamount}
-                        placeholder="Enter total amount"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.mobile && <span className="invalid">{errors.totalamount.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Monthly Installment</label>
-                      <input
-                        type="text"
-                        name="monthlyinstallment"
-                        defaultValue={formData.monthlyinstallment}
-                        placeholder="Enter monthly installment"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.netmonthsalary && <span className="invalid">{errors.monthlyinstallment.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Source of Payment</label>
-                      <input
-                        type="text"
-                        name="sourceofpayment"
-                        defaultValue={formData.sourceofpayment}
-                        placeholder="Enter security details"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.datejoining && <span className="invalid">{errors.sourceofpayment.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Security Details</label>
-                      <input
-                        type="text"
-                        name="securitydetails"
-                        defaultValue={formData.securitydetails}
-                        placeholder="Enter security details"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.preemployer && <span className="invalid">{errors.securitydetails.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Security description</label>
-                      <input
-                        type="text"
-                        name="securitydescription"
-                        defaultValue={formData.securitydescription}
-                        placeholder="Enter security description"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.otherincome && <span className="invalid">{errors.securitydescription.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Value</label>
-                      <input
-                        type="text"
-                        name="value"
-                        defaultValue={formData.value}
-                        placeholder="Enter value"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Contribution</label>
-                      <input
-                        type="text"
-                        name="contribution"
-                        defaultValue={formData.contribution}
-                        placeholder="Enter contribution"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.citizenship && <span className="invalid">{errors.contribution.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="12">
-                    <div className="preview-block">
-                      <span className="preview-title overline-title">Existing Facilities Available</span>
-                      <div className="custom-control custom-switch">
-                        <input
-                          type="checkbox"
-                          onChange={(e) => {
-                            console.log("Check faci ");
-
-                            setExistingFacility(!existingFacility);
-                          }}
-                          className="custom-control-input form-control"
-                          defaultChecked={existingFacility}
-                          id="customSwitch2"
-                        />
-                        <label className="custom-control-label" htmlFor="customSwitch2">
-                          {existingFacility ? "Yes" : "NO"}
-                        </label>
-                      </div>
-                    </div>
-                  </Col>
-                  {existingFacility && (
-                    <>
-                      <Col size="6">
-                        <div className="form-group">
-                          <label className="form-label" htmlFor="product-title">
-                            Select Facility Type
-                          </label>
-                          <div className="form-control-wrap">
-                            <select
-                              className="form-control"
-                              name="facilitytype"
-                              defaultValue={formData.facilitytype}
-                              onChange={(e) => setFacilityValue(e.target.value)}
-                              ref={register({ required: "This field is required" })}
-                            >
-                              <option value="Murabaha">Murabaha</option>
-                              <option value="Other">Other</option>
-                            </select>
-                          </div>
+                {selected.length > 0 ? (
+                  <Form className="row gy-4" onSubmit={handleSubmit(onFormSubmit)}>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">File Type</label>
+                        <div className="form-control-wrap">
+                          <select
+                            name="type"
+                            className="form-control"
+                            value={filevaue}
+                            onChange={(e) => setFileValue(e.target.value)}
+                            ref={register({ required: "This field is required" })}
+                          >
+                            <option value={"Group"}>Group</option>
+                            <option value={"Person"}>Person</option>
+                          </select>
                         </div>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Amount Disbursed</label>
-                          <input
-                            type="text"
-                            name="amountdisbursed"
-                            defaultValue={formData.value}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Outstanding</label>
-                          <input
-                            type="text"
-                            name="outstanding"
-                            defaultValue={formData.value}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Profit Rate</label>
-                          <input
-                            type="text"
-                            name="profitrateexist"
-                            defaultValue={formData.value}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Total Profit</label>
-                          <input
-                            type="text"
-                            name="totalprofit"
-                            defaultValue={formData.value}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Maturity Date</label>
-                          <input
-                            type="date"
-                            name="maturitydate"
-                            defaultValue={formData.maturitydate}
-                            placeholder="Enter net month salary"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.maturitydate && <span className="invalid">{errors.maturitydate.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Monthly Installment</label>
-                          <input
-                            type="text"
-                            name="monthlyinstallmentexist"
-                            defaultValue={formData.value}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
-                        </FormGroup>
-                      </Col>
-                      <Col md="6">
-                        <FormGroup>
-                          <label className="form-label">Bank</label>
-                          <input
-                            type="text"
-                            name="bank"
-                            defaultValue={formData.bank}
-                            placeholder="Enter value"
-                            className="form-control"
-                            ref={register({
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors.bank && <span className="invalid">{errors.bank.message}</span>}
-                        </FormGroup>
-                      </Col>
-                    </>
-                  )}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Purpose</label>
+                        <input
+                          type="text"
+                          name="purpose"
+                          defaultValue={formData.purpose}
+                          placeholder="Enter purpose"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.purpose && <span className="invalid">{errors.purpose.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Amount</label>
+                        <input
+                          type="number"
+                          step=".01"
+                          name="amount"
+                          placeholder="Enter amount"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                          onChange={(e) => setAmount(e.target.value)}
+                        />
+                        {errors.amount && <span className="invalid">{errors.amount.message}</span>}
+                      </FormGroup>
+                    </Col>
 
-                  <Col size="12">
-                    <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                      <li>
-                        <Button color="primary" size="md" type="submit">
-                          Add Application
-                        </Button>
-                      </li>
-
-                      <li>
-                        <Button
-                          onClick={(ev) => {
-                            ev.preventDefault();
-                            onFormCancel();
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Profit Rate</label>
+                        <input
+                          type="number"
+                          name="profitrate"
+                          step=".01"
+                          placeholder="Enter profit rate"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                          onChange={(e) => changeRate(e)}
+                        />
+                        {errors.profitrate && <span className="invalid">{errors.profitrate.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Profit Amount</label>
+                        <input
+                          type="number"
+                          step=".01"
+                          name="profitamount"
+                          defaultValue={profitAmount}
+                          placeholder="Enter profit amount"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                          ChangeEvent={(e) => {
+                            setProfit((amount * e.target.value) / 100);
+                            setTotalAmount(amount + profitAmount);
                           }}
-                          className="link link-light"
-                        >
-                          Cancel
-                        </Button>
-                      </li>
-                    </ul>
-                  </Col>
-                </Form>
+                        />
+                        {errors.profitamount && <span className="invalid">{errors.profitamount.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Total Amount</label>
+                        <input
+                          type="number"
+                          name="totalamount"
+                          step=".01"
+                          defaultValue={totalAmount}
+                          placeholder="Enter total amount"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.totalamount && <span className="invalid">{errors.totalamount.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Facility Period </label>
+                        <input
+                          type="number"
+                          name="tenure"
+                          placeholder="Enter facility period"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.tenure && <span className="invalid">{errors.tenure.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Monthly Installment</label>
+                        <input
+                          type="number"
+                          step=".01"
+                          name="monthlyinstallment"
+                          placeholder="Enter monthly installment"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.monthlyinstallment && (
+                          <span className="invalid">{errors.monthlyinstallment.message}</span>
+                        )}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Source of Payment</label>
+                        <input
+                          type="text"
+                          name="sourceofpayment"
+                          placeholder="Enter security details"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.sourceofpayment && <span className="invalid">{errors.sourceofpayment.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Security Details</label>
+                        <input
+                          type="text"
+                          name="securitydetails"
+                          placeholder="Enter security details"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.securitydetails && <span className="invalid">{errors.securitydetails.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Security description</label>
+                        <input
+                          type="text"
+                          name="securitydescription"
+                          placeholder="Enter security description"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.securitydescription && (
+                          <span className="invalid">{errors.securitydescription.message}</span>
+                        )}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Value</label>
+                        <input
+                          type="number"
+                          step=".01"
+                          name="value"
+                          placeholder="Enter value"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.value && <span className="invalid">{errors.value.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Status check:</label>
+                        <input
+                          type="text"
+                          name="statuscheck"
+                          placeholder="Enter value"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.statuscheck && <span className="invalid">{errors.statuscheck.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Contribution</label>
+                        <input
+                          type="number"
+                          name="contribution"
+                          step=".01"
+                          placeholder="Enter contribution"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.contribution && <span className="invalid">{errors.contribution.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="12">
+                      <div className="preview-block">
+                        <span className="preview-title overline-title">Existing Facilities Available</span>
+                        <div className="custom-control custom-switch">
+                          <input
+                            type="checkbox"
+                            onChange={(e) => {
+                              console.log("Check faci ");
+
+                              setExistingFacility(!existingFacility);
+                            }}
+                            className="custom-control-input form-control"
+                            defaultChecked={existingFacility}
+                            id="customSwitch2"
+                          />
+                          <label className="custom-control-label" htmlFor="customSwitch2">
+                            {existingFacility ? "Yes" : "NO"}
+                          </label>
+                        </div>
+                      </div>
+                    </Col>
+                    {existingFacility && (
+                      <>
+                        <Col size="6">
+                          <div className="form-group">
+                            <label className="form-label" htmlFor="product-title">
+                              Select Facility Type
+                            </label>
+                            <div className="form-control-wrap">
+                              <select
+                                className="form-control"
+                                name="facilitytype"
+                                defaultValue={facilityValue}
+                                onChange={(e) => setFacilityValue(e.target.value)}
+                                ref={register({ required: "This field is required" })}
+                              >
+                                <option value="Murabaha">Murabaha</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Amount Disbursed</label>
+                            <input
+                              type="text"
+                              name="amountdisbursed"
+                              defaultValue={formData.value}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Outstanding</label>
+                            <input
+                              type="text"
+                              name="outstanding"
+                              defaultValue={formData.value}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Profit Rate</label>
+                            <input
+                              type="text"
+                              name="profitrateexist"
+                              defaultValue={formData.value}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Total Profit</label>
+                            <input
+                              type="text"
+                              name="totalprofit"
+                              defaultValue={formData.value}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Maturity Date</label>
+                            <input
+                              type="date"
+                              name="maturitydate"
+                              defaultValue={formData.maturitydate}
+                              placeholder="Enter net month salary"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.maturitydate && <span className="invalid">{errors.maturitydate.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Monthly Installment</label>
+                            <input
+                              type="text"
+                              name="monthlyinstallmentexist"
+                              defaultValue={formData.value}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                          </FormGroup>
+                        </Col>
+                        <Col md="6">
+                          <FormGroup>
+                            <label className="form-label">Bank</label>
+                            <input
+                              type="text"
+                              name="bank"
+                              defaultValue={formData.bank}
+                              placeholder="Enter value"
+                              className="form-control"
+                              ref={register({
+                                required: "This field is required",
+                              })}
+                            />
+                            {errors.bank && <span className="invalid">{errors.bank.message}</span>}
+                          </FormGroup>
+                        </Col>
+                      </>
+                    )}
+
+                    <Col size="12">
+                      <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                        <li>
+                          <Button color="primary" size="md" type="submit">
+                            Add Application
+                          </Button>
+                        </li>
+
+                        <li>
+                          <Button
+                            onClick={(ev) => {
+                              ev.preventDefault();
+                              onFormCancel();
+                            }}
+                            className="link link-light"
+                          >
+                            Cancel
+                          </Button>
+                        </li>
+                      </ul>
+                    </Col>
+                  </Form>
+                ) : (
+                  <Alert className="alert-fill alert-icon" color="light">
+                    <Icon name="alert-circle" />
+                    Please select <strong>customers first</strong>.
+                  </Alert>
+                )}
               </div>
             </div>
           </ModalBody>
@@ -1140,6 +1234,41 @@ const InvoiceList = () => {
             <div className="p-2">
               <h5 className="title">Update Application</h5>
               <div className="mt-4">
+                <Col md="12">
+                  <div className="form-control-wrap">
+                    <select
+                      className="form-control"
+                      onChange={(e) => {
+                        var value = Number(e.target.value);
+
+                        selectedHandler(value);
+                      }}
+                    >
+                      {customers.map((employee, index) => {
+                        return <option value={employee.id}>{employee.name}</option>;
+                      })}
+                    </select>
+                    {errors.account && <span className="invalid">{errors.purpose.message}</span>}
+                  </div>
+                </Col>
+                {selected.map((item) => {
+                  return (
+                    <ul>
+                      <li style={{ padding: 4 }}>
+                        <Button color="primary" onClick={() => selectedHandler(item.id)}>
+                          <span>{item.name}</span>
+                          <Icon name="cross" />
+                        </Button>
+                      </li>
+                    </ul>
+                  );
+                })}
+                {
+                  <Button color="primary">
+                    <span> {data?.application?.customers.map((sub) => sub?.name)}</span>
+                    <Icon name="cross" />
+                  </Button>
+                }
                 <Form className="row gy-4" onSubmit={handleSubmit(onEditSubmit)}>
                   <Col md="12">
                     <FormGroup>
@@ -1157,24 +1286,7 @@ const InvoiceList = () => {
                       {errors.id && <span className="invalid">{errors.id.message}</span>}
                     </FormGroup>
                   </Col>
-                  <Col size="12">
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="product-title">
-                        Select Customer Name
-                      </label>
-                      <div className="form-control-wrap">
-                        <select
-                          className="form-control"
-                          name="customerid"
-                          defaultValue={formData.customerid}
-                          onChange={(e) => setCustomerValue(e.target.value)}
-                          ref={register({ required: "This field is required" })}
-                        >
-                          {options}
-                        </select>
-                      </div>
-                    </div>
-                  </Col>
+
                   <Col md="6">
                     <FormGroup>
                       <label className="form-label">Purpose</label>

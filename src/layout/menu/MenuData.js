@@ -13,7 +13,7 @@ const menu = [
     icon: "users-fill",
     text: "User Manage",
     active: false,
-    allowedRole: "IT Officer",
+    allowedRole: ["Relation Manager Investments", "Relation Officer Investments"],
     subMenu: [
       {
         text: "Users List",
@@ -34,7 +34,7 @@ const menu = [
     icon: "tile-thumb-fill",
     text: "Customers",
     active: false,
-    allowedRole: ["Relation Officer Investments"],
+    allowedRole: ["Relation Manager Investments", "Relation Officer Investments"],
     subMenu: [
       {
         text: "Customers List",
@@ -52,12 +52,6 @@ const menu = [
       {
         text: "Personal Investments",
         link: "/individual-investments",
-      },
-
-      {
-        text: "Form Wizard",
-        link: "/form-wizard",
-        allowedRole: "",
       },
     ],
   },

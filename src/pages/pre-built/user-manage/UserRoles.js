@@ -32,7 +32,7 @@ import {
 } from "../../../components/Component";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
-import { filterRole, filterStatus, userData } from "./UserData";
+
 import { bulkActionOptions, findUpper } from "../../../utils/Utils";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -92,18 +92,12 @@ const UserRoles = () => {
   // unselects the data on mount
   useEffect(() => {
     getRoles();
-    let newData;
-    newData = userData.map((item) => {
-      item.checked = false;
-      return item;
-    });
-    setData([...newData]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Changing state value when searching name
   useEffect(() => {
     if (onSearchText !== "") {
-      const filteredObject = userData.filter((item) => {
+      const filteredObject = data.filter((item) => {
         return (
           item.name.toLowerCase().includes(onSearchText.toLowerCase()) ||
           item.email.toLowerCase().includes(onSearchText.toLowerCase())
@@ -111,7 +105,7 @@ const UserRoles = () => {
       });
       setData([...filteredObject]);
     } else {
-      setData([...userData]);
+      setData([...data]);
     }
   }, [onSearchText, setData]);
 
@@ -488,13 +482,13 @@ const UserRoles = () => {
                                       <Col size="6">
                                         <FormGroup>
                                           <label className="overline-title overline-title-alt">Role</label>
-                                          <RSelect options={filterRole} placeholder="Any Role" />
+                                          <RSelect placeholder="Any Role" />
                                         </FormGroup>
                                       </Col>
                                       <Col size="6">
                                         <FormGroup>
                                           <label className="overline-title overline-title-alt">Status</label>
-                                          <RSelect options={filterStatus} placeholder="Any Status" />
+                                          <RSelect placeholder="Any Status" />
                                         </FormGroup>
                                       </Col>
                                       <Col size="12">

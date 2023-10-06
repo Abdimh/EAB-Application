@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "../layout/head/Head";
 import Content from "../layout/content/Content";
 import SalesStatistics from "../components/partials/default/SalesStatistics";
@@ -25,9 +25,24 @@ import {
   DefaultRevenueChart,
   DefaultVisitorChart,
 } from "../components/partials/charts/default/DefaultCharts";
-
+import instanceAxios from "../utils/AxiosSetup";
 const Homepage = () => {
+  const [approved, setApprovedApps] = useState();
+  const [purposed, setProposed] = useState(1);
   const [sm, updateSm] = useState(false);
+  const getApplications = async () => {
+    try {
+      const datares = await instanceAxios.get("FullApplications");
+      setApprovedApps(datares.data.approvedapps);
+      setProposed(datares.data.purposedapp);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getApplications();
+  }, []);
   return (
     <React.Fragment>
       <Head title="Homepage"></Head>
@@ -117,7 +132,7 @@ const Homepage = () => {
                 percentChange={"4.63"}
                 up={true}
                 chart={<DefaultOrderChart />}
-                amount={"1975"}
+                amount={approved}
               />
             </Col>
             <Col xxl="3" sm="6">
@@ -126,7 +141,7 @@ const Homepage = () => {
                 percentChange={"2.63"}
                 up={false}
                 chart={<DefaultRevenueChart />}
-                amount={"$2293"}
+                amount={purposed}
               />
             </Col>
             <Col xxl="3" sm="6">
