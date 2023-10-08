@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, withRouter } from "react-router-dom";
+import { Switch, Route, withRouter, BrowserRouter } from "react-router-dom";
 import { RedirectAs404 } from "./utils/Utils";
 import PrivateRoute from "./route/PrivateRoute";
 
@@ -23,33 +23,36 @@ import ReportPrint from "./pages/pre-built/Investments/ReportPrint";
 
 const App = (props) => {
   return (
-    <Switch>
-      {/* Auth Pages */}
-      <Route exact path={`${process.env.PUBLIC_URL}/auth-success`} component={Success}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/auth-reset`} component={ForgotPassword}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/auth-register`} component={Register}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/auth-login`} component={Login}></Route>
+    <BrowserRouter>
+      <Switch>
+        {/* Auth Pages */}
 
-      {/* Print Pages */}
-      <Route exact path={`${process.env.PUBLIC_URL}/invoice-print/:id`} component={InvoicePrint}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/report-print/:from/:to`} component={ReportPrint}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/auth-success`} component={Success}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/auth-reset`} component={ForgotPassword}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/auth-register`} component={Register}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/auth-login`} component={Login}></Route>
 
-      {/* Helper pages */}
-      <Route exact path={`${process.env.PUBLIC_URL}/auths/terms`} component={Terms}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/auths/faq`} component={Faq}></Route>
+        {/* Print Pages */}
+        <Route exact path={`${process.env.PUBLIC_URL}/application-print/:id`} component={InvoicePrint}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/report-print/:from/:to`} component={ReportPrint}></Route>
 
-      <Route exact path={`${process.env.PUBLIC_URL}/invoice-print`} component={InvoicePrint}></Route>
+        {/* Helper pages */}
+        <Route exact path={`${process.env.PUBLIC_URL}/auths/terms`} component={Terms}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/auths/faq`} component={Faq}></Route>
 
-      {/*Error Pages*/}
-      <Route exact path={`${process.env.PUBLIC_URL}/errors/404-classic`} component={Error404Classic}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/errors/504-modern`} component={Error504Modern}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/errors/404-modern`} component={Error404Modern}></Route>
-      <Route exact path={`${process.env.PUBLIC_URL}/errors/504-classic`} component={Error504Classic}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/invoice-print`} component={InvoicePrint}></Route>
 
-      {/*Main Routes*/}
-      <PrivateRoute exact path="" component={Layout}></PrivateRoute>
-      <Route component={RedirectAs404}></Route>
-    </Switch>
+        {/*Error Pages*/}
+        <Route exact path={`${process.env.PUBLIC_URL}/errors/404-classic`} component={Error404Classic}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/errors/504-modern`} component={Error504Modern}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/errors/404-modern`} component={Error404Modern}></Route>
+        <Route exact path={`${process.env.PUBLIC_URL}/errors/504-classic`} component={Error504Classic}></Route>
+
+        {/*Main Routes*/}
+        <PrivateRoute exact path="" component={Layout}></PrivateRoute>
+        <Route component={RedirectAs404}></Route>
+      </Switch>
+    </BrowserRouter>
   );
 };
 export default withRouter(App);

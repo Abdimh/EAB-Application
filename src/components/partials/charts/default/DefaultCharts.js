@@ -11,7 +11,7 @@ import {
   salesStatisticsSet4,
   orderStatistics,
 } from "./DefaultData";
-
+import instanceAxios from "../../../../utils/AxiosSetup";
 export const DefaultOrderChart = () => {
   return (
     <Line
@@ -393,6 +393,38 @@ export const DefaultSalesStatistics = ({ state }) => {
 };
 
 export const DefaultOrderStatistics = () => {
+  const [approved, setApprovedApps] = useState();
+  const [review, setReview] = useState(0);
+  const [delivered, setDelivered] = useState(0);
+  const [rejected, setRejected] = useState(0);
+  const [process, setProcess] = useState(0);
+  const [sm, updateSm] = useState(false);
+  const getApplications = async () => {
+    try {
+      const datares = await instanceAxios.get("FullApplications");
+      setApprovedApps(datares.data.approvedapps);
+      setProcess(datares.data.processapp);
+      setDelivered(datares.data.deliveredapp);
+      setReview(datares.data.reviewapp);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  var orderStatistics = {
+    labels: ["Approved", "Processing", "Delivered"],
+    dataUnit: "People",
+    legend: false,
+    datasets: [
+      {
+        borderColor: "#fff",
+        backgroundColor: ["#558e42", "#335c94", "#99ab21"],
+        data: [approved, process, delivered],
+      },
+    ],
+  };
+  useEffect(() => {
+    getApplications();
+  }, []);
   return (
     <Doughnut
       data={orderStatistics}
@@ -418,7 +450,7 @@ export const DefaultOrderStatistics = () => {
               return data.datasets[tooltipItem.datasetIndex]["data"][tooltipItem["index"]] + " ";
             },
           },
-          backgroundColor: "#1c2b46",
+          backgroundColor: "#26ac72",
           titleFontSize: 13,
           titleFontColor: "#fff",
           titleMarginBottom: 6,

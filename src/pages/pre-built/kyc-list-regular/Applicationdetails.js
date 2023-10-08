@@ -64,7 +64,7 @@ const KycDetailsRegular = ({ match }) => {
   const getFile = async (row) => {
     const Endpoint = `Upload/download/${row.id}`;
     axios({
-      url: "https://localhost:7015/api/" + Endpoint, // your url
+      url: "/api/" + Endpoint, // your url
       method: "POST",
       responseType: "blob", // important
     }).then((res) => {

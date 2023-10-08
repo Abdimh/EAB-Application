@@ -38,9 +38,15 @@ import { CustomToast } from "../../../utils/CustomToast";
 import { red } from "@mui/material/colors";
 import moment from "moment";
 const InvoiceDetails = ({ match }) => {
+  const [message, setMessage] = useState(false);
   const userId = match.params.id;
   const [data] = useState(invoiceData);
   const [user, setUser] = useState();
+  const [isprm, setIsPrm] = useState(true);
+  const [isca, setIsCa] = useState(true);
+  const [issharia, setSharia] = useState(true);
+  const [iscredit, setCredit] = useState(true);
+  const [isoperation, setOperation] = useState(true);
   const [statusValue, setStatusValue] = useState("");
   const [modal, setModal] = useState({
     edit: false,
@@ -48,6 +54,9 @@ const InvoiceDetails = ({ match }) => {
     facility: false,
     sharia: false,
     voting: false,
+    RM: false,
+    cad: false,
+    op: false,
   });
   const [formData, setFormData] = useState({
     CA: "",
@@ -148,37 +157,175 @@ const InvoiceDetails = ({ match }) => {
     setModal({ edit: false }, { add: false });
   };
 
-  // Update Statis
-  const onUpdateSubmit = async (submitData) => {
+  // Update Relation Manager Recommendation
+  const onSubmitRMRecommendation = async (submitData) => {
     const appid = match.params.id;
     const { id, CA, status } = submitData;
     console.log(submitData);
     try {
       const RoleRes = await instanceAxios.put("IndividualApp", {
-        applicationid: submitData.id,
+        applicationid: appid,
+
+        isPRM: isprm,
+        message: submitData.message,
+        ismessage: message,
+        RM: submitData.recommendation,
+      });
+
+      // const { data } = RoleRes;
+      // 200 Data
+
+      CustomToast("Application has been transferred", false, "success");
+      setMessage(false);
+      getApp();
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        if (response.status === 400 && response.status === 403) {
+          //
+        }
+      }
+    }
+    setModal({ edit: false }, { add: false });
+  };
+
+  // Update Relation Manager Recommendation
+  const onProcessSubmit = async (submitData) => {
+    const appid = match.params.id;
+    const { id, CA, status } = submitData;
+    console.log(iscredit);
+    try {
+      const RoleRes = await instanceAxios.put("IndividualApp", {
+        applicationid: appid,
+
+        iscreditadminstration: iscredit,
         status: status,
-        customerid: user?.customer.id,
-        purpose: submitData.purpose,
-        amount: submitData.amount,
-        tenure: submitData.tenure,
-        contribution: submitData.contribution,
-        profitrate: submitData.profitrate,
-        profitamount: submitData.profitamount,
-        totalamount: submitData.totalamount,
-        monthlyinstallment: submitData.monthlyinstallment,
-        securitydetails: submitData.securitydetails,
-        securitydescription: submitData.securitydescription,
-        sourceofpayment: submitData.sourceofpayment,
-        value: submitData.value,
-        condition: submitData.condition,
-        RM: submitData.RM,
-        ca: submitData.CA,
+      });
+
+      // const { data } = RoleRes;
+      // 200 Data
+
+      CustomToast("Application has been transferred", false, "success");
+      setCredit(false);
+      getApp();
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        if (response.status === 400 && response.status === 403) {
+          //
+        }
+      }
+    }
+    setModal({ edit: false }, { add: false });
+  };
+
+  // Update Relation Manager Recommendation
+  const ondeliver = async (submitData) => {
+    const appid = match.params.id;
+    const { id, CA, status } = submitData;
+    console.log(iscredit);
+    try {
+      const RoleRes = await instanceAxios.put("IndividualApp", {
+        applicationid: appid,
+
+        isoperation: isoperation,
+        status: status,
+      });
+
+      // const { data } = RoleRes;
+      // 200 Data
+
+      CustomToast("Application has been transferred", false, "success");
+      setCredit(false);
+      getApp();
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        if (response.status === 400 && response.status === 403) {
+          //
+        }
+      }
+    }
+    setModal({ edit: false }, { add: false });
+  };
+
+  // Update Credit Analyst Recommendation
+
+  const onSubmitCARecommendation = async (submitData) => {
+    const appid = match.params.id;
+    const { id, CA, status } = submitData;
+    console.log(submitData);
+    try {
+      const RoleRes = await instanceAxios.put("IndividualApp", {
+        applicationid: appid,
+
+        isCA: isca,
+        message: submitData.message,
+        ismessage: message,
+        CA: submitData.CA,
       });
 
       const { data } = RoleRes;
       // 200 Data
 
-      CustomToast("Transfered Application", false, "success");
+      CustomToast("Application has been transferred", false, "success");
+      setMessage(false);
+      getApp();
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        if (response.status === 400 && response.status === 403) {
+          //
+        }
+      }
+    }
+    setModal({ edit: false }, { add: false });
+  };
+  console.log(message);
+  // Update Sharia
+  const onSubmitSharia = async (submitData) => {
+    const appid = match.params.id;
+    const { id, CA, status } = submitData;
+
+    try {
+      const RoleRes = await instanceAxios.put("IndividualApp", {
+        applicationid: appid,
+        issharai: issharia,
+        status: submitData.status,
+        message: submitData.message,
+        ismessage: message,
+      });
+
+      const { data } = RoleRes;
+      // 200 Data
+
+      CustomToast("Application has been transferred", false, "success");
+      setMessage(false);
+      setModal({ sharia: false, add: false });
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -221,24 +368,23 @@ const InvoiceDetails = ({ match }) => {
     }
   };
 
+  const onFormCancel = () => {
+    setMessage(false);
+    setModal({ sharia: false, add: false });
+    setModal({ facility: false, add: false });
+    setModal({ RM: false, add: false });
+  };
+
   useEffect(() => {
     getApp();
     fetchdata();
-    /*   const id = match.params.id;
-    if (id !== undefined || null || "") {
-      let spUser = data.find((item) => item.id === Number(id));
-      setUser(spUser);
-    } else {
-      setUser(data[0]);
-    }
-    */
   }, []);
   const { errors, register, handleSubmit } = useForm();
 
   console.log(user);
   return (
     <React.Fragment>
-      <Head title="Invoice Detail"></Head>
+      <Head title="Application Details"></Head>
       <Content>
         <BlockHead>
           <BlockBetween className="g-3">
@@ -280,6 +426,28 @@ const InvoiceDetails = ({ match }) => {
         <Block>
           <div className="invoice">
             <div className="invoice-action">
+              {userdetails.role.name === "Operation" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ op: true })}
+                >
+                  <Icon name="plus"></Icon>
+                </Button>
+              )}
+              {userdetails.role.name === "Credit Administration" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ cad: true })}
+                >
+                  <Icon name="plus"></Icon>
+                </Button>
+              )}
               {userdetails.role.name === "Credit Analyst" && (
                 <Button
                   size="lg"
@@ -287,6 +455,17 @@ const InvoiceDetails = ({ match }) => {
                   outline
                   className="btn-icon btn-white btn-dim"
                   onClick={() => setModal({ facility: true })}
+                >
+                  <Icon name="plus"></Icon>
+                </Button>
+              )}
+              {userdetails.role.name === "Relation Manager PI" && (
+                <Button
+                  size="lg"
+                  color="primary"
+                  outline
+                  className="btn-icon btn-white btn-dim"
+                  onClick={() => setModal({ RM: true })}
                 >
                   <Icon name="plus"></Icon>
                 </Button>
@@ -302,7 +481,7 @@ const InvoiceDetails = ({ match }) => {
                   <Icon name="plus"></Icon>
                 </Button>
               )}
-              {userdetails.role.name === "Credit Commitee" && (
+              {userdetails.role.name === "Credit Committee" && (
                 <Button
                   size="lg"
                   color="primary"
@@ -315,7 +494,7 @@ const InvoiceDetails = ({ match }) => {
               )}
               <br />
               <br />
-              <Link to={`${process.env.PUBLIC_URL}/invoice-print/${user?.application?.id}`} target="_blank">
+              <Link to={`${process.env.PUBLIC_URL}/application-print/${user?.application?.id}`} target="_blank">
                 <Button size="lg" color="primary" outline className="btn-icon btn-white btn-dim">
                   <Icon name="printer-fill"></Icon>
                 </Button>
@@ -373,7 +552,99 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </thead>
                   </table>
-
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Basic Information.
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Name</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.name)}</td>
+                      </tr>
+                      <tr>
+                        <th>Employment Type</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.employmenttype)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Responsibilities</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.position)}</td>
+                      </tr>
+                      <tr>
+                        <th>Home Address</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.homeaddress)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Telephone</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.mobile)}</td>
+                      </tr>
+                      <tr>
+                        <th>Monthly Salary</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.netmonthsalary)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Date of Joining</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.datejoining)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Previous employer</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.preemployer)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Other Income (Amount)</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.otherincome)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Salary Account in EAB</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.account)}</td>
+                      </tr>
+                      <tr>
+                        <th>Citizenship</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.citizenship)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Other Banks</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.otherbanks)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Gender</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.gender)}</td>
+                      </tr>
+                      <tr>
+                        <th>Date of Brith</th>
+                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.dob)}</td>
+                      </tr>
+                      <tr>
+                        <th>Account opened date</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.eabopenedaccount)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Other liabilities</th>
+                        <td style={{ textAlign: "left" }}>
+                          {user?.application?.customers.map((sub) => sub.liabilities)}
+                        </td>
+                      </tr>
+                    </thead>
+                  </table>
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -454,15 +725,15 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(user?.bank === "EAB" && (
+                      {(user?.facility?.bank === "EAB" && (
                         <tr>
                           <th scope="row">{user?.facility?.facilityType}</th>
                           <td>{user?.facility?.amountdisbursed}</td>
                           <td>{user?.facility?.outstanding}</td>
-                          <td>{user?.facility?.exprofitrate}</td>
+                          <td>{user?.facility?.profitrate}</td>
                           <td>{user?.facility?.totalprofit}</td>
                           <td>{user?.facility?.maturitydate}</td>
-                          <td>{user?.facility?.exmonthlyinstallment}</td>
+                          <td>{user?.facility?.monthlyinstallment}</td>
                         </tr>
                       )) || (
                         <tr>
@@ -530,11 +801,15 @@ const InvoiceDetails = ({ match }) => {
                       <tr>
                         <td>Total Principal outstanding ( existing facilities at EAB) in DJF</td>
 
-                        {user?.facility?.outstanding === "" ? <td>{0}</td> : <td>{user?.facility?.outstanding}</td>}
+                        {user?.facility === null ? <td>{0}</td> : <td>{user?.facility?.outstanding}</td>}
                       </tr>
                       <tr>
                         <td>Total amount (existing facilities and the proposed facility in USD</td>
-                        <td>{user?.facility?.outstanding + user?.application?.amount}</td>
+                        <td>
+                          {user?.facility == null
+                            ? user?.application?.amount
+                            : user?.facility?.outstanding + user?.application?.amount}
+                        </td>
                       </tr>
                     </thead>
                   </table>
@@ -594,20 +869,41 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </tbody>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
-                        <td colSpan="2" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
-                          Credit Analyst Recommendation
+                        <td colSpan="3" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Recommendation by relation manager
                         </td>
                       </tr>
                       <tr>
-                        <td>Mohamed Kamil Signature: .......................</td>
-                        <td>Date: ..........................</td>
+                        <td colSpan="3" style={{ textAlign: "left" }}>
+                          {user?.application?.rm}
+                        </td>
                       </tr>
                       <tr>
-                        <td>{user?.application?.ca}</td>
+                        <td>Name</td>
+                        <td>Signature</td>
+                        <td>Date</td>
+                      </tr>
+                    </thead>
+                  </table>
+                  <table className="table table-striped" border="1">
+                    <thead>
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
+                          Credit Analyst recommendation
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: "left" }}>
+                          {user?.application?.ca}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Name</td>
+                        <td>Signature</td>
+                        <td>Date</td>
                       </tr>
                     </thead>
                   </table>
@@ -629,11 +925,16 @@ const InvoiceDetails = ({ match }) => {
                         ))}
                       </tr>
                       <tr>
-                        <td style={{ height: 50 }}> </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        {user?.vote?.map((e) => (
+                          <td style={{ textAlign: "left", fontWeight: 800 }}>
+                            <Badge
+                              color={e.status === "Approve" ? "success" : e.status === "Reject" ? "danger" : "warning"}
+                              className="badge-dot"
+                            >
+                              {e.status}
+                            </Badge>
+                          </td>
+                        ))}
                       </tr>{" "}
                     </thead>
                   </table>
@@ -653,23 +954,68 @@ const InvoiceDetails = ({ match }) => {
       >
         <ModalBody>
           <div className="p-2">
-            <h5 className="title">Credit Analyst Recommendation Form</h5>
+            <h5 className="title">Credit Analyst Recommendation</h5>
             <div className="mt-4">
-              <Form className="row gy-4" onSubmit={handleSubmit(onFormSubmit)}>
-                <Col size="12">
-                  <FormGroup>
-                    <label className="form-label">Comment / Recommendation</label>
-                    <textarea
-                      name="CA"
-                      defaultValue={formData.CA}
-                      placeholder="Your description"
-                      //    onChange={(e) => onInputChange(e)}
-                      ref={register({ required: "This field is required" })}
-                      className="form-control no-resize"
-                    />
-                    {errors.CA && <span className="invalid">{errors.CA.message}</span>}
-                  </FormGroup>
+              <Form className="row gy-4" onSubmit={handleSubmit(onSubmitCARecommendation)}>
+                <Col md="12">
+                  <div className="preview-block">
+                    <span className="preview-title overline-title">
+                      Please send message back relation manager if you have any inqueries.
+                    </span>
+                    <div className="custom-control custom-switch">
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          console.log("Check faci ");
+
+                          setMessage(!message);
+                        }}
+                        className="custom-control-input form-control"
+                        id="customSwitch2"
+                      />
+                      <label className="custom-control-label" htmlFor="customSwitch2">
+                        {message ? "Yes" : "NO"}
+                      </label>
+                    </div>
+                  </div>
                 </Col>
+                {message ? (
+                  <>
+                    <>
+                      <Col size="12">
+                        <FormGroup>
+                          <label className="form-label">Your Inquiries</label>
+                          <textarea
+                            name="message"
+                            placeholder="Your description"
+                            //    onChange={(e) => onInputChange(e)}
+                            ref={register({ required: "This field is required" })}
+                            className="form-control no-resize"
+                          />
+                          {errors.message && <span className="invalid">{errors.message.message}</span>}
+                        </FormGroup>
+                      </Col>
+                    </>
+                  </>
+                ) : (
+                  <>
+                    <>
+                      <Col size="12">
+                        <FormGroup>
+                          <label className="form-label">Your Recommendation</label>
+                          <textarea
+                            name="CA"
+                            placeholder="Your description"
+                            //    onChange={(e) => onInputChange(e)}
+                            ref={register({ required: "This field is required" })}
+                            className="form-control no-resize"
+                          />
+                          {errors.CA && <span className="invalid">{errors.CA.message}</span>}
+                        </FormGroup>
+                      </Col>
+                    </>
+                  </>
+                )}
 
                 <Col size="12">
                   <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
@@ -682,7 +1028,7 @@ const InvoiceDetails = ({ match }) => {
                       <Button
                         onClick={(ev) => {
                           ev.preventDefault();
-                          //   onFormCancel();
+                          onFormCancel();
                         }}
                         className="link link-light"
                       >
@@ -704,17 +1050,16 @@ const InvoiceDetails = ({ match }) => {
       >
         <ModalBody>
           <div className="p-2">
-            <h5 className="title">Change Status</h5>
+            <h5 className="title">Sharia</h5>
             <div className="mt-4">
-              <Form className="row gy-4" onSubmit={handleSubmit(onUpdateSubmit)}>
+              <Form className="row gy-4" onSubmit={handleSubmit(onSubmitSharia)}>
                 <Col size="12">
                   <FormGroup>
-                    <label className="form-label">Current Status:</label>
-
+                    <label className="form-label">Status:</label>
                     <select
                       className="form-control"
                       name="status"
-                      defaultValue={formData.status}
+                      defaultValue={statusValue}
                       onChange={(e) => setStatusValue(e.target.value)}
                       ref={register({ required: "This field is required" })}
                     >
@@ -724,7 +1069,45 @@ const InvoiceDetails = ({ match }) => {
                     {errors.status && <span className="invalid">{errors.status.message}</span>}
                   </FormGroup>
                 </Col>
+                <Col md="12">
+                  <div className="preview-block">
+                    <span className="preview-title overline-title">
+                      Please send message credit analyst if you have any inqueries.
+                    </span>
+                    <div className="custom-control custom-switch">
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          console.log("Check faci ");
 
+                          setMessage(!message);
+                        }}
+                        className="custom-control-input form-control"
+                        id="customSwitch2"
+                      />
+                      <label className="custom-control-label" htmlFor="customSwitch2">
+                        {message ? "Yes" : "NO"}
+                      </label>
+                    </div>
+                  </div>
+                </Col>
+                {message && (
+                  <>
+                    <Col size="12">
+                      <FormGroup>
+                        <label className="form-label">Your Inquiries</label>
+                        <textarea
+                          name="message"
+                          placeholder="Your description"
+                          //    onChange={(e) => onInputChange(e)}
+                          ref={register({ required: "This field is required" })}
+                          className="form-control no-resize"
+                        />
+                        {errors.message && <span className="invalid">{errors.message.message}</span>}
+                      </FormGroup>
+                    </Col>
+                  </>
+                )}
                 <Col size="12">
                   <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                     <li>
@@ -736,7 +1119,7 @@ const InvoiceDetails = ({ match }) => {
                       <Button
                         onClick={(ev) => {
                           ev.preventDefault();
-                          //   onFormCancel();
+                          onFormCancel();
                         }}
                         className="link link-light"
                       >
@@ -775,6 +1158,7 @@ const InvoiceDetails = ({ match }) => {
                       <option value="Approve">Approve</option>
                       <option value="Reject">Reject</option>
                       <option value="Differed">Differed</option>
+                      <option value="Transfer">Transfer</option>
                     </select>
                     {errors.status && <span className="invalid">{errors.status.message}</span>}
                   </FormGroup>
@@ -798,7 +1182,7 @@ const InvoiceDetails = ({ match }) => {
                   <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                     <li>
                       <Button color="primary" size="md" type="submit">
-                        Vote
+                        Submit
                       </Button>
                     </li>
                     <li>
@@ -806,6 +1190,193 @@ const InvoiceDetails = ({ match }) => {
                         onClick={(ev) => {
                           ev.preventDefault();
                           //   onFormCancel();
+                        }}
+                        className="link link-light"
+                      >
+                        Cancel
+                      </Button>
+                    </li>
+                  </ul>
+                </Col>
+              </Form>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+      <Modal isOpen={modal.RM} toggle={() => setModal({ RM: false })} className="modal-dialog-centered" size="lg">
+        <ModalBody>
+          <div className="p-2">
+            <h5 className="title">Relation Manager Recommendation</h5>
+            <div className="mt-4">
+              <Form className="row gy-4" onSubmit={handleSubmit(onSubmitRMRecommendation)}>
+                <Col md="12">
+                  <div className="preview-block">
+                    <span className="preview-title overline-title">
+                      Please send message credit analyst if you have any inqueries.
+                    </span>
+                    <div className="custom-control custom-switch">
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          console.log("Check faci ");
+
+                          setMessage(!message);
+                        }}
+                        className="custom-control-input form-control"
+                        id="customSwitch2"
+                      />
+                      <label className="custom-control-label" htmlFor="customSwitch2">
+                        {message ? "Yes" : "NO"}
+                      </label>
+                    </div>
+                  </div>
+                </Col>
+                {message ? (
+                  <>
+                    <>
+                      <Col size="12">
+                        <FormGroup>
+                          <label className="form-label">Your Inquiries</label>
+                          <textarea
+                            name="message"
+                            placeholder="Your description"
+                            //    onChange={(e) => onInputChange(e)}
+                            ref={register({ required: "This field is required" })}
+                            className="form-control no-resize"
+                          />
+                          {errors.message && <span className="invalid">{errors.message.message}</span>}
+                        </FormGroup>
+                      </Col>
+                    </>
+                  </>
+                ) : (
+                  <>
+                    <>
+                      <Col size="12">
+                        <FormGroup>
+                          <label className="form-label">Recommendation</label>
+                          <textarea
+                            name="recommendation"
+                            placeholder="Your description"
+                            //    onChange={(e) => onInputChange(e)}
+                            ref={register({ required: "This field is required" })}
+                            className="form-control no-resize"
+                          />
+                          {errors.recommendation && <span className="invalid">{errors.recommendation.message}</span>}
+                        </FormGroup>
+                      </Col>
+                    </>
+                  </>
+                )}
+
+                <Col size="12">
+                  <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                    <li>
+                      <Button color="primary" size="md" type="submit">
+                        Update
+                      </Button>
+                    </li>
+                    <li>
+                      <Button
+                        onClick={(ev) => {
+                          ev.preventDefault();
+                          onFormCancel();
+                        }}
+                        className="link link-light"
+                      >
+                        Cancel
+                      </Button>
+                    </li>
+                  </ul>
+                </Col>
+              </Form>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+      <Modal isOpen={modal.cad} toggle={() => setModal({ cad: false })} className="modal-dialog-centered" size="lg">
+        <ModalBody>
+          <div className="p-2">
+            <h5 className="title">Credit Adminstration</h5>
+            <div className="mt-4">
+              <Form className="row gy-4" onSubmit={handleSubmit(onProcessSubmit)}>
+                <Col size="12">
+                  <FormGroup>
+                    <label className="form-label">Status:</label>
+                    <select
+                      className="form-control"
+                      name="status"
+                      defaultValue={statusValue}
+                      onChange={(e) => setStatusValue(e.target.value)}
+                      ref={register({ required: "This field is required" })}
+                    >
+                      <option value="Process">Process</option>
+                      <option value="Pending">Pending</option>
+                    </select>
+                    {errors.status && <span className="invalid">{errors.status.message}</span>}
+                  </FormGroup>
+                </Col>
+
+                <Col size="12">
+                  <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                    <li>
+                      <Button color="primary" size="md" type="submit">
+                        Update
+                      </Button>
+                    </li>
+                    <li>
+                      <Button
+                        onClick={(ev) => {
+                          ev.preventDefault();
+                          onFormCancel();
+                        }}
+                        className="link link-light"
+                      >
+                        Cancel
+                      </Button>
+                    </li>
+                  </ul>
+                </Col>
+              </Form>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+      <Modal isOpen={modal.op} toggle={() => setModal({ op: false })} className="modal-dialog-centered" size="lg">
+        <ModalBody>
+          <div className="p-2">
+            <h5 className="title">Operation Department</h5>
+            <div className="mt-4">
+              <Form className="row gy-4" onSubmit={handleSubmit(ondeliver)}>
+                <Col size="12">
+                  <FormGroup>
+                    <label className="form-label">Status:</label>
+                    <select
+                      className="form-control"
+                      name="status"
+                      defaultValue={statusValue}
+                      onChange={(e) => setStatusValue(e.target.value)}
+                      ref={register({ required: "This field is required" })}
+                    >
+                      <option value="On hold">On hold</option>
+                      <option value="Delivered">Delivered</option>
+                    </select>
+                    {errors.status && <span className="invalid">{errors.status.message}</span>}
+                  </FormGroup>
+                </Col>
+
+                <Col size="12">
+                  <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                    <li>
+                      <Button color="primary" size="md" type="submit">
+                        Update
+                      </Button>
+                    </li>
+                    <li>
+                      <Button
+                        onClick={(ev) => {
+                          ev.preventDefault();
+                          onFormCancel();
                         }}
                         className="link link-light"
                       >

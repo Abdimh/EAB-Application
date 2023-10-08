@@ -45,6 +45,7 @@ const InvoiceList = () => {
   const [data, setData] = useState([]);
   const [onSearch, setonSearch] = useState(true);
   const [existingFacility, setExistingFacility] = useState(false);
+  const [isro, setIsRo] = useState(true);
   const [onSearchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(10);
@@ -70,6 +71,7 @@ const InvoiceList = () => {
     edit: false,
     add: false,
     facility: false,
+    guarantor: false,
   });
   const [editId, setEditedId] = useState();
   //const [data, setData] = useState(projectData);
@@ -114,6 +116,20 @@ const InvoiceList = () => {
     status: "",
     statuscheck: "",
     type: "",
+  });
+
+  const [guarantorform, setGuarantorForm] = useState({
+    id: 0,
+    Name: "",
+    EABAccount: "",
+    bankname: "",
+    otheraccount: "",
+    fulladdress: "",
+    telphone: "",
+    outstanding: "",
+    installment: "",
+    maturatiydate: "",
+    applicationid: 0,
   });
   // Sorting data
   const sortFunc = () => {
@@ -164,6 +180,7 @@ const InvoiceList = () => {
       type: "",
     });
     setProfit();
+    setSelected([]);
     setAmount();
     setTotalAmount();
     setRate();
@@ -171,6 +188,7 @@ const InvoiceList = () => {
 
   // function to close the form modal
   const onFormCancel = () => {
+    setSelected([]);
     setModal({ edit: false, add: false });
     resetForm();
   };
@@ -206,6 +224,8 @@ const InvoiceList = () => {
     } = sData;
     console.log(sData);
     try {
+      const arraydata = [];
+      selected.forEach((item) => arraydata.push(item.id));
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: id,
         customerid: customerid,
@@ -220,7 +240,9 @@ const InvoiceList = () => {
         securitydetails: securitydetails,
         securitydescription: securitydescription,
         isExisting: existingFacility,
+        isRO: isro,
         value: value,
+        CustomersList: arraydata,
         contribution: contribution,
         createdby: user.userName,
         amountdisbursed: amountdisbursed,
@@ -232,14 +254,15 @@ const InvoiceList = () => {
         facilitytype: facilitytype,
         bank: bank,
         status: status,
-        checkstatus: statuscheck,
-        filetype: filetype,
+        checkstatus: sData.statuscheck,
+        filetype: sData.type,
       });
 
       const { data } = RoleRes;
       // 200 Data
 
       CustomToast("Successfully Updated", false, "success");
+      resetForm();
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -302,8 +325,10 @@ const InvoiceList = () => {
       bank: data.facility?.bank,
       status: data.application.status,
       statuscheck: data.application.checkstatus,
-      filetype: data.application.filetype,
+      type: data.application.filetype,
     });
+
+    checkApplicationHasCustomer(data);
 
     if (data.facility?.facilityType === null) {
       setExistingFacility(true);
@@ -315,6 +340,21 @@ const InvoiceList = () => {
     setEditedId(id);
   };
 
+  // Guarantor click
+
+  const onguarantorClick = async (id) => {
+    const Endpoint = `FullApplications/${id}`;
+    const response = await instanceAxios.get(Endpoint);
+    const data = response.data;
+    setSelectedCustomers(data);
+    // console.log(data.application.customers);
+    setGuarantorForm({
+      applicationid: data.application.id,
+    });
+
+    setModal({ guarantor: true });
+    setEditedId(id);
+  };
   // Changing state value when searching name
   useEffect(() => {
     fetchdata();
@@ -426,6 +466,60 @@ const InvoiceList = () => {
     getApplications();
     setModal({ edit: false }, { add: false });
   };
+
+  // Submit guarantor
+  const onFormGuarantor = async (submitData) => {
+    try {
+      const data = {
+        name: submitData.name,
+        eabAccount: submitData.EABAccount,
+        bankname: submitData.bankname,
+        otheraccount: submitData.otheraccount,
+        fulladdress: submitData.fulladdress,
+        telphone: submitData.telphone,
+        outstanding: submitData.outstanding,
+        installment: submitData.installment,
+        maturatiydate: submitData.maturatiydate,
+        applicationid: submitData.applicationid,
+      };
+
+      const RoleRes = await instanceAxios.post("Guarantor", data).then((response) => {
+        console.log(response.data);
+      });
+
+      CustomToast("Successfully Added", false, "success");
+      resetForm();
+
+      console.log(data);
+    } catch (error) {
+      // 401, 403, 400
+      if (isAxiosError(error)) {
+        const { response, status } = error;
+
+        if (response.data.detail === "Duplicate Entery") CustomToast(response.data.detail, false, "error");
+
+        console.log(response.status, response.data);
+
+        console.log(response.data);
+
+        if (response.status === 400) {
+          //
+
+          if (response.data["detail"] != null) {
+            // type: String,
+            // title: String,
+            // status: Number,
+            // detail: String, // ,message
+            // traceId: String,
+            CustomToast(response.data["detail"], false, "error");
+            console.log("\n \n error", response.data["detail"]);
+          }
+        }
+      }
+    }
+    getApplications();
+    setModal({ guarantor: false }, { add: false });
+  };
   var fromdate = moment(rangeStart).format("YYYY-MM-DD");
   var todate = moment(rangeEnd).format("YYYY-MM-DD");
 
@@ -480,9 +574,27 @@ const InvoiceList = () => {
     setSelected(newSelected);
   };
 
+  const checkApplicationHasCustomer = (data) => {
+    if (selectedcustomers == null) {
+      setSelected([]);
+      return;
+    }
+
+    let newlist = [...selected];
+
+    data.application?.customers?.forEach((p) => {
+      newlist.push(p);
+    });
+
+    setSelected([...newlist]);
+  };
+  useEffect(() => {
+    setSelected([]);
+  }, []);
+
   return (
     <React.Fragment>
-      <Head title="Invoice List"></Head>
+      <Head title="Personal Investments"></Head>
       <Content>
         <BlockHead size="sm">
           <BlockBetween>
@@ -524,17 +636,21 @@ const InvoiceList = () => {
               </div>
               <br />
               <BlockDes className="text-soft">
-                <p>You have total 937 invoices.{user.role.name}</p>
+                <p>
+                  {user.length}.{user.role.name}
+                </p>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
               <ul className="nk-block-tools g-3">
-                <li className="nk-block-tools-opt" onClick={() => setModal({ add: true })}>
-                  <Button color="primary">
-                    <Icon name="plus"></Icon>
-                    <span>Add Application</span>
-                  </Button>
-                </li>
+                {user.role.name === "Relation Officer PI" && (
+                  <li className="nk-block-tools-opt" onClick={() => setModal({ add: true })}>
+                    <Button color="primary">
+                      <Icon name="plus"></Icon>
+                      <span>Add Application</span>
+                    </Button>
+                  </li>
+                )}
               </ul>
             </BlockHeadContent>
           </BlockBetween>
@@ -700,7 +816,17 @@ const InvoiceList = () => {
                               </td>
                               <td className="tb-odr-action">
                                 <div className="tb-odr-btns d-none d-sm-inline">
-                                  {user.role.name === "Relation Officer Investments" && (
+                                  {user.role.name === "Relation Officer PI" && (
+                                    <Button
+                                      color="primary"
+                                      size="sm"
+                                      className="btn btn-dim"
+                                      onClick={() => onguarantorClick(item.id)}
+                                    >
+                                      <Icon name="plus"></Icon>
+                                    </Button>
+                                  )}
+                                  {user.role.name === "Relation Officer PI" && (
                                     <Button
                                       color="primary"
                                       size="sm"
@@ -1244,6 +1370,7 @@ const InvoiceList = () => {
                         selectedHandler(value);
                       }}
                     >
+                      <option value="">Select Customer</option>
                       {customers.map((employee, index) => {
                         return <option value={employee.id}>{employee.name}</option>;
                       })}
@@ -1263,13 +1390,25 @@ const InvoiceList = () => {
                     </ul>
                   );
                 })}
-                {
-                  <Button color="primary">
-                    <span> {data?.application?.customers.map((sub) => sub?.name)}</span>
-                    <Icon name="cross" />
-                  </Button>
-                }
+
                 <Form className="row gy-4" onSubmit={handleSubmit(onEditSubmit)}>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">File Type</label>
+                      <div className="form-control-wrap">
+                        <select
+                          name="type"
+                          className="form-control"
+                          defaultValue={formData.type}
+                          onChange={(e) => setFileValue(e.target.value)}
+                          ref={register({ required: "This field is required" })}
+                        >
+                          <option value={"Group"}>Group</option>
+                          <option value={"Person"}>Person</option>
+                        </select>
+                      </div>
+                    </FormGroup>
+                  </Col>
                   <Col md="12">
                     <FormGroup>
                       <label className="form-label">Application ID</label>
@@ -1461,6 +1600,22 @@ const InvoiceList = () => {
                         })}
                       />
                       {errors.salarycrediteab && <span className="invalid">{errors.value.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Status check:</label>
+                      <input
+                        type="text"
+                        name="statuscheck"
+                        defaultValue={formData.statuscheck}
+                        placeholder="Enter value"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.statuscheck && <span className="invalid">{errors.statuscheck.message}</span>}
                     </FormGroup>
                   </Col>
                   <Col md="6">
@@ -1683,12 +1838,195 @@ const InvoiceList = () => {
         </Modal>
 
         <Modal
-          isOpen={modal.facility}
-          toggle={() => setModal({ facility: false })}
+          isOpen={modal.guarantor}
+          toggle={() => setModal({ guarantor: false })}
           className="modal-dialog-centered"
           size="lg"
         >
-          <ModalBody>Welcome</ModalBody>
+          <ModalBody>
+            <a
+              href="#cancel"
+              onClick={(ev) => {
+                ev.preventDefault();
+                onFormCancel();
+              }}
+              className="close"
+            >
+              <Icon name="cross-sm"></Icon>
+            </a>
+            <div className="p-2">
+              <h5 className="title">Guarantor Details Form</h5>
+              <div className="mt-4">
+                <Form className="row gy-4" onSubmit={handleSubmit(onFormGuarantor)}>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Application ID</label>
+                      <input
+                        type="text"
+                        name="applicationid"
+                        placeholder="Enter Full Name"
+                        defaultValue={guarantorform.applicationid}
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.applicationid && <span className="invalid">{errors.applicationid.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter Full Name"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.name && <span className="invalid">{errors.name.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">East Africa Bank Account</label>
+                      <input
+                        type="text"
+                        name="EABAccount"
+                        defaultValue={guarantorform.EABAccount}
+                        placeholder="Enter East Africa Bank Account is exists"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.EABAccount && <span className="invalid">{errors.EABAccount.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Other Bank Name</label>
+                      <input
+                        type="text"
+                        name="bankname"
+                        defaultValue={guarantorform.bankname}
+                        placeholder="Enter other bank name if it exists"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.bankname && <span className="invalid">{errors.bankname.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Account Number From Other Bank</label>
+                      <input
+                        type="text"
+                        name="otheraccount"
+                        defaultValue={guarantorform.otheraccount}
+                        placeholder="Enter other account number"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.otheraccount && <span className="invalid">{errors.otheraccount.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Full Address</label>
+                      <input
+                        type="text"
+                        name="fulladdress"
+                        defaultValue={guarantorform.fulladdress}
+                        placeholder="Enter full address"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.fulladdress && <span className="invalid">{errors.fulladdress.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Outstanding</label>
+                      <input
+                        type="text"
+                        name="outstanding"
+                        defaultValue={guarantorform.outstanding}
+                        placeholder="Enter outstanding if it exists"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.outstanding && <span className="invalid">{errors.outstanding.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Installment</label>
+                      <input
+                        type="text"
+                        name="installment"
+                        defaultValue={guarantorform.installment}
+                        placeholder="Enter monthly installment"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.installment && <span className="invalid">{errors.installment.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Maturity Date</label>
+                      <input
+                        type="date"
+                        name="maturatiydate"
+                        defaultValue={guarantorform.maturatiydate}
+                        placeholder="Enter security details"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.maturatiydate && <span className="invalid">{errors.maturatiydate.message}</span>}
+                    </FormGroup>
+                  </Col>
+
+                  <Col size="12">
+                    <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                      <li>
+                        <Button color="primary" size="md" type="submit">
+                          Submit
+                        </Button>
+                      </li>
+
+                      <li>
+                        <Button
+                          onClick={(ev) => {
+                            ev.preventDefault();
+                            onFormCancel();
+                          }}
+                          className="link link-light"
+                        >
+                          Cancel
+                        </Button>
+                      </li>
+                    </ul>
+                  </Col>
+                </Form>
+              </div>
+            </div>
+          </ModalBody>
         </Modal>
       </Content>
     </React.Fragment>

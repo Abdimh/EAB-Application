@@ -102,7 +102,7 @@ import BusinessDetails from "../pages/pre-built/Investments/BusinessDetails";
 import PricingTable from "../pages/pre-built/pricing-table/PricingTable";
 import GalleryPreview from "../pages/pre-built/gallery/GalleryCardPreview";
 import ReactToastify from "../pages/components/misc/ReactToastify";
-
+import resetpassword from "../pages/pre-built/Investments/ForgetPassword";
 import AppMessages from "../pages/app/messages/Messages";
 import Chat from "../pages/app/chat/ChatContainer";
 import Kanban from "../pages/app/kanban/Kanban";
@@ -223,6 +223,7 @@ const Pages = () => {
         ></Route>
 
         <Route path={`${process.env.PUBLIC_URL}/business-investments`} component={businessinvestmentList}></Route>
+        <Route path={`${process.env.PUBLIC_URL}/reset-password`} component={resetpassword}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/application-details/:id`} component={ApplcationDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/business-details/:id`} component={BusinessDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pricing-table`} component={PricingTable}></Route>

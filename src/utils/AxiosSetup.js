@@ -1,10 +1,11 @@
 // import { CustomToast } from "@Utils/ToastHelpers";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { CustomToast } from "../utils/CustomToast";
 import { ToastContainer } from "react-toastify";
 import axios from "axios";
 
 const instanceAxios = axios.create({
-  baseURL: "https://localhost:7015/api/",
+  baseURL: "/api/",
   headers: {
     accept: "application/json",
     "content-type": "application/json",
@@ -17,7 +18,7 @@ const instanceAxios = axios.create({
 instanceAxios.interceptors.request.use(
   function (config) {
     var isAuthorized = localStorage.getItem("isAuthorized");
-
+    console.log(isAuthorized);
     const data = JSON.parse(localStorage.getItem("user"));
 
     if (isAuthorized) {
@@ -25,7 +26,7 @@ instanceAxios.interceptors.request.use(
 
       config.headers.Authorization = `Bearer ${data["token"]}`;
     } else {
-      console.log("Please redirect");
+      <Redirect to="/auth-login" />;
     }
 
     return config;
@@ -58,7 +59,8 @@ instanceAxios.interceptors.response.use(
 
       if (response?.status === 401) {
         // UnAuthorized, LogOut
-        console.log("Please Login Again", response);
+
+        <Redirect to="/auth-login" />;
       }
     }
 

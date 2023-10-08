@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { CustomToast } from "../../../utils/CustomToast";
 const InvoicePrint = ({ match }) => {
   const [item, setitem] = useState();
+  const [subtotalamount, setSubTotal] = useState();
   const [user, setUser] = useState([]);
   let { from, to } = useParams();
   const getApp = async () => {
@@ -41,14 +42,17 @@ const InvoicePrint = ({ match }) => {
       }
     }
   };
-  useEffect(() => {
-    //  setTimeout(() => window.print(), 500);
-  }, []);
 
   useEffect(() => {
     getApp();
   }, []);
+  let total = 0;
+  let profitam = 0;
 
+  user.forEach((item) => {
+    total += item.totalamount;
+    profitam += item.profitamount;
+  });
   return (
     <body className="bg-white">
       <Head title="Invoice Print"></Head>
@@ -116,14 +120,14 @@ const InvoicePrint = ({ match }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {user.map((employee, index) => {
+                    {user?.map((employee, index) => {
                       return (
                         <tr>
-                          <td>{employee.id}</td>
-                          <td>{employee.purpose}</td>
-                          <td>{employee.tenure} Months</td>
-                          <td>{employee.status}</td>
-                          <td>{employee.totalamount}</td>
+                          <td>{employee?.id}</td>
+                          <td>{employee?.purpose}</td>
+                          <td>{employee?.tenure} Months</td>
+                          <td>{employee?.totalamount}</td>
+                          <td>{employee?.profitamount}</td>
                         </tr>
                       );
                     })}
@@ -131,23 +135,11 @@ const InvoicePrint = ({ match }) => {
                   <tfoot>
                     <tr>
                       <td colSpan="2"></td>
-                      <td colSpan="2">Subtotal</td>
-                      <td>2000$</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="2"></td>
-                      <td colSpan="2">Processing fee</td>
-                      <td>$10.00</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="2"></td>
-                      <td colSpan="2">TAX</td>
-                      <td>$50.00</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="2"></td>
-                      <td colSpan="2">Grand Total</td>
-                      <td>$3000</td>
+                      <td>
+                        <b>Sub Totals:</b>
+                      </td>
+                      <td>{total}</td>
+                      <td>{profitam}</td>
                     </tr>
                   </tfoot>
                 </table>

@@ -27,14 +27,42 @@ import {
 } from "../components/partials/charts/default/DefaultCharts";
 import instanceAxios from "../utils/AxiosSetup";
 const Homepage = () => {
+  const [data, setData] = useState([]);
   const [approved, setApprovedApps] = useState();
-  const [purposed, setProposed] = useState(1);
+  const [review, setReview] = useState(0);
+  const [delivered, setDelivered] = useState(0);
+  const [rejected, setRejected] = useState(0);
+  const [totalcreated, setTotal] = useState(0);
   const [sm, updateSm] = useState(false);
+  const [user, setUser] = useState({
+    expireIn: Number,
+    expireTimeStamp: String,
+    fullname: String,
+    role: { id: Number, name: String },
+    token: String,
+    userName: String,
+  });
+  const fetchdata = () => {
+    const data = JSON.parse(localStorage.getItem("user"));
+    setUser(data);
+    console.log(data);
+  };
   const getApplications = async () => {
     try {
       const datares = await instanceAxios.get("FullApplications");
       setApprovedApps(datares.data.approvedapps);
-      setProposed(datares.data.purposedapp);
+      setRejected(datares.data.rejectedapp);
+      setDelivered(datares.data.deliveredapp);
+      setReview(datares.data.reviewapp);
+      setTotal(datares.data.totalapplications);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getApplicationcreated = async () => {
+    try {
+      const datares = await instanceAxios.get("IndividualApp");
     } catch (e) {
       console.log(e);
     }
@@ -42,10 +70,14 @@ const Homepage = () => {
 
   useEffect(() => {
     getApplications();
+    getApplicationcreated();
+    fetchdata();
   }, []);
+
+  console.log(data.length);
   return (
     <React.Fragment>
-      <Head title="Homepage"></Head>
+      <Head title="Dashboard"></Head>
       <Content>
         <BlockHead size="sm">
           <BlockBetween>
@@ -62,64 +94,7 @@ const Homepage = () => {
                 >
                   <Icon name="more-v" />
                 </Button>
-                <div className="toggle-expand-content" style={{ display: sm ? "block" : "none" }}>
-                  <ul className="nk-block-tools g-3">
-                    <li>
-                      <UncontrolledDropdown>
-                        <DropdownToggle tag="a" className="dropdown-toggle btn btn-white btn-dim btn-outline-light">
-                          <Icon className="d-none d-sm-inline" name="calender-date" />
-                          <span>
-                            <span className="d-none d-md-inline">Last</span> 30 Days
-                          </span>
-                          <Icon className="dd-indc" name="chevron-right" />
-                        </DropdownToggle>
-                        <DropdownMenu right>
-                          <ul className="link-list-opt no-bdr">
-                            <li>
-                              <DropdownItem
-                                tag="a"
-                                onClick={(ev) => {
-                                  ev.preventDefault();
-                                }}
-                                href="#!"
-                              >
-                                <span>Last 30 days</span>
-                              </DropdownItem>
-                            </li>
-                            <li>
-                              <DropdownItem
-                                tag="a"
-                                onClick={(ev) => {
-                                  ev.preventDefault();
-                                }}
-                                href="#dropdownitem"
-                              >
-                                <span>Last 6 months</span>
-                              </DropdownItem>
-                            </li>
-                            <li>
-                              <DropdownItem
-                                tag="a"
-                                onClick={(ev) => {
-                                  ev.preventDefault();
-                                }}
-                                href="#dropdownitem"
-                              >
-                                <span>Last 3 weeks</span>
-                              </DropdownItem>
-                            </li>
-                          </ul>
-                        </DropdownMenu>
-                      </UncontrolledDropdown>
-                    </li>
-                    <li className="nk-block-tools-opt">
-                      <Button color="primary">
-                        <Icon name="reports" />
-                        <span>Reports</span>
-                      </Button>
-                    </li>
-                  </ul>
-                </div>
+                <div className="toggle-expand-content" style={{ display: sm ? "block" : "none" }}></div>
               </div>
             </BlockHeadContent>
           </BlockBetween>
@@ -128,55 +103,40 @@ const Homepage = () => {
           <Row className="g-gs">
             <Col xxl="3" sm="6">
               <DataCard
-                title="Today's Order"
-                percentChange={"4.63"}
+                title="Approved Applicaitons"
                 up={true}
-                chart={<DefaultOrderChart />}
                 amount={approved}
+                percentChange={"Total Approved Applications"}
               />
             </Col>
             <Col xxl="3" sm="6">
               <DataCard
-                title="Today's Revenue"
-                percentChange={"2.63"}
+                title="Rejected Applications"
+                percentChange={"Total Rejected Applications"}
                 up={false}
-                chart={<DefaultRevenueChart />}
-                amount={purposed}
+                amount={rejected}
               />
             </Col>
             <Col xxl="3" sm="6">
               <DataCard
-                title="Today's Customers"
-                percentChange={"4.63"}
+                title="Delivered Applications"
+                percentChange={"Total delivered applications"}
                 up={true}
-                chart={<DefaultCustomerChart />}
-                amount={"847"}
+                amount={delivered}
               />
             </Col>
             <Col xxl="3" sm="6">
-              <DataCard
-                title="Today's Visitors"
-                percentChange={"2.63"}
-                up={false}
-                chart={<DefaultVisitorChart />}
-                amount={"23,485"}
-              />
+              <DataCard title="On Review" percentChange={"2.63"} up={false} amount={review} />
             </Col>
-            <Col xxl="6">
-              <SalesStatistics />
-            </Col>
+
             <Col xxl="3" md="6">
               <OrderStatistics />
             </Col>
-            <Col xxl="3" md="6">
-              <StoreStatistics />
-            </Col>
-            <Col xxl="8">
-              <RecentOrders />
-            </Col>
-            <Col xxl="4" md="8" lg="6">
-              <TopProducts />
-            </Col>
+            {user.role.name === "Relation Officer PI" && (
+              <Col xxl="3" sm="6">
+                <DataCard title="Total Application Created" percentChange={"2.63"} up={false} amount={totalcreated} />
+              </Col>
+            )}
           </Row>
         </Block>
       </Content>

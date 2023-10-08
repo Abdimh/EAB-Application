@@ -13,7 +13,7 @@ const menu = [
     icon: "users-fill",
     text: "User Manage",
     active: false,
-    allowedRole: ["Relation Manager Investments", "Relation Officer Investments"],
+    allowedRole: ["IT Officer"],
     subMenu: [
       {
         text: "Users List",
@@ -34,7 +34,7 @@ const menu = [
     icon: "tile-thumb-fill",
     text: "Customers",
     active: false,
-    allowedRole: ["Relation Manager Investments", "Relation Officer Investments"],
+    allowedRole: ["Relation Officer PI", "Relation Manager BI"],
     subMenu: [
       {
         text: "Customers List",
@@ -47,7 +47,15 @@ const menu = [
     icon: "file-docs",
     text: "Personal Investments",
     active: false,
-    allowedRole: ["Relation Manager Investments", "Relation Officer Investments"],
+    allowedRole: [
+      "Relation Officer PI",
+      "Relation Manager PI",
+      "Sharia",
+      "Credit Analyst",
+      "Credit Administration",
+      "Credit Committee",
+      "Operation",
+    ],
     subMenu: [
       {
         text: "Personal Investments",
@@ -59,17 +67,19 @@ const menu = [
     icon: "file-docs",
     text: "Business Investments",
     active: false,
-    allowedRole: ["Relation Manager Business", "Relation Officer     Business"],
+    allowedRole: [
+      "Relation Manager BI",
+      "Relation Officer  BI",
+      "Sharia",
+      "Credit Analyst",
+      "Credit Administration",
+      "Credit Committee",
+      "Operation",
+    ],
     subMenu: [
       {
         text: "Personal Investments",
         link: "/individual-investments",
-      },
-
-      {
-        text: "Form Wizard",
-        link: "/form-wizard",
-        allowedRole: "",
       },
     ],
   },

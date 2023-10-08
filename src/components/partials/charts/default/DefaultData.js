@@ -383,7 +383,7 @@ export var salesStatisticsSet3 = {
       borderDash: [5],
       pointRadius: 0,
       backgroundColor: "transparent",
-       pointBorderColor: "transparent",
+      pointBorderColor: "transparent",
       pointBackgroundColor: "transparent",
       pointHoverBackgroundColor: "#fff",
       pointHoverBorderColor: "#eb6459",
@@ -465,7 +465,7 @@ export var salesStatisticsSet4 = {
       borderDash: [5],
       pointRadius: 0,
       backgroundColor: "transparent",
-       pointBorderColor: "transparent",
+      pointBorderColor: "transparent",
       pointBackgroundColor: "transparent",
       pointHoverBackgroundColor: "#fff",
       pointHoverBorderColor: "#eb6459",
@@ -482,14 +482,14 @@ export var salesStatisticsSet4 = {
 };
 
 export var orderStatistics = {
-  labels: ["Completed", "Processing", "Canclled"],
+  labels: ["Approved", "Delivered", "Processing"],
   dataUnit: "People",
   legend: false,
   datasets: [
     {
       borderColor: "#fff",
-      backgroundColor: ["#816bff", "#13c9f2", "#ff82b7"],
-      data: [4305, 859, 482],
+      backgroundColor: ["#558e42", "#335c94", "#99ab21"],
+      data: [50, 60, 70],
     },
   ],
 };
