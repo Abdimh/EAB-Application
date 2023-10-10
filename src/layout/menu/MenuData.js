@@ -78,8 +78,8 @@ const menu = [
     ],
     subMenu: [
       {
-        text: "Personal Investments",
-        link: "/individual-investments",
+        text: "Business Investments",
+        link: "/business-investments",
       },
     ],
   },

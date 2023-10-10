@@ -93,7 +93,7 @@ const InvoiceList = () => {
   const { errors, register, handleSubmit, setValue } = useForm();
   return (
     <React.Fragment>
-      <Head title="Invoice List"></Head>
+      <Head title="Reset Password"></Head>
       <Content>
         <Block>
           <Card className="card-stretch">

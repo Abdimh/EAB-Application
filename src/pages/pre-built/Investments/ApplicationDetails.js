@@ -23,6 +23,7 @@ import {
   Badge,
   DropdownItem,
   ModalBody,
+  Spinner,
 } from "reactstrap";
 import { useParams } from "react-router-dom";
 import Content from "../../../layout/content/Content";
@@ -38,9 +39,11 @@ import { CustomToast } from "../../../utils/CustomToast";
 import { red } from "@mui/material/colors";
 import moment from "moment";
 const InvoiceDetails = ({ match }) => {
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(false);
   const userId = match.params.id;
   const [data] = useState(invoiceData);
+  const [salary, SetMonthlysalary] = useState(0);
   const [user, setUser] = useState();
   const [isprm, setIsPrm] = useState(true);
   const [isca, setIsCa] = useState(true);
@@ -111,6 +114,7 @@ const InvoiceDetails = ({ match }) => {
 
   // submit function to add a new item
   const onFormSubmit = async (submitData) => {
+    setLoading(true);
     const appid = match.params.id;
     const { id, CA, status } = submitData;
     console.log(user);
@@ -163,6 +167,7 @@ const InvoiceDetails = ({ match }) => {
     const { id, CA, status } = submitData;
     console.log(submitData);
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: appid,
 
@@ -177,8 +182,10 @@ const InvoiceDetails = ({ match }) => {
 
       CustomToast("Application has been transferred", false, "success");
       setMessage(false);
+      setLoading(false);
       getApp();
     } catch (error) {
+      setLoading(false);
       // 401, 403, 400
       if (isAxiosError(error)) {
         const { response } = error;
@@ -201,6 +208,7 @@ const InvoiceDetails = ({ match }) => {
     const { id, CA, status } = submitData;
     console.log(iscredit);
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: appid,
 
@@ -213,6 +221,7 @@ const InvoiceDetails = ({ match }) => {
 
       CustomToast("Application has been transferred", false, "success");
       setCredit(false);
+      setLoading(false);
       getApp();
     } catch (error) {
       // 401, 403, 400
@@ -237,6 +246,7 @@ const InvoiceDetails = ({ match }) => {
     const { id, CA, status } = submitData;
     console.log(iscredit);
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: appid,
 
@@ -249,6 +259,7 @@ const InvoiceDetails = ({ match }) => {
 
       CustomToast("Application has been transferred", false, "success");
       setCredit(false);
+      setLoading(false);
       getApp();
     } catch (error) {
       // 401, 403, 400
@@ -274,6 +285,7 @@ const InvoiceDetails = ({ match }) => {
     const { id, CA, status } = submitData;
     console.log(submitData);
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: appid,
 
@@ -288,6 +300,7 @@ const InvoiceDetails = ({ match }) => {
 
       CustomToast("Application has been transferred", false, "success");
       setMessage(false);
+      setLoading(false);
       getApp();
     } catch (error) {
       // 401, 403, 400
@@ -312,6 +325,7 @@ const InvoiceDetails = ({ match }) => {
     const { id, CA, status } = submitData;
 
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: appid,
         issharai: issharia,
@@ -326,6 +340,7 @@ const InvoiceDetails = ({ match }) => {
       CustomToast("Application has been transferred", false, "success");
       setMessage(false);
       setModal({ sharia: false, add: false });
+      setLoading(false);
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -347,6 +362,7 @@ const InvoiceDetails = ({ match }) => {
     const { recommendation, status } = submitData;
     const Endpoint = "Voting";
     try {
+      setLoading(true);
       const RoleRes = await instanceAxios.post(Endpoint, {
         recommendation: recommendation,
         role: userdetails.role.name,
@@ -357,6 +373,7 @@ const InvoiceDetails = ({ match }) => {
       });
       CustomToast("Successfully Voted", false, "success");
       setModal({ voting: false }, { add: false });
+      setLoading(false);
     } catch (error) {
       // 401, 403, 400
       if (isAxiosError(error)) {
@@ -378,10 +395,17 @@ const InvoiceDetails = ({ match }) => {
   useEffect(() => {
     getApp();
     fetchdata();
+    setLoading(false);
   }, []);
   const { errors, register, handleSubmit } = useForm();
 
-  console.log(user);
+  const total =
+    (user?.application?.monthlyinstallment / user?.application?.customers.map((sub) => sub?.netmonthsalary)) * 100;
+
+  const DBR = total.toFixed(2);
+
+  console.log();
+
   return (
     <React.Fragment>
       <Head title="Application Details"></Head>
@@ -489,7 +513,7 @@ const InvoiceDetails = ({ match }) => {
                   className="btn-icon btn-white btn-dim"
                   onClick={() => setModal({ voting: true })}
                 >
-                  <em class="icon ni ni-file-check-fill"></em>
+                  <Icon name="plus"></Icon>
                 </Button>
               )}
               <br />
@@ -552,99 +576,241 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </thead>
                   </table>
-                  <table className="table table-striped" border="1">
-                    <thead>
-                      <tr>
-                        <td colSpan="4" style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}>
-                          Basic Information.
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Name</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.name)}</td>
-                      </tr>
-                      <tr>
-                        <th>Employment Type</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.employmenttype)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Responsibilities</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.position)}</td>
-                      </tr>
-                      <tr>
-                        <th>Home Address</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.homeaddress)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Telephone</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.mobile)}</td>
-                      </tr>
-                      <tr>
-                        <th>Monthly Salary</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.netmonthsalary)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Date of Joining</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.datejoining)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Previous employer</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.preemployer)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Other Income (Amount)</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.otherincome)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Salary Account in EAB</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.account)}</td>
-                      </tr>
-                      <tr>
-                        <th>Citizenship</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.citizenship)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Other Banks</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.otherbanks)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Gender</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.gender)}</td>
-                      </tr>
-                      <tr>
-                        <th>Date of Brith</th>
-                        <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub.dob)}</td>
-                      </tr>
-                      <tr>
-                        <th>Account opened date</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.eabopenedaccount)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Other liabilities</th>
-                        <td style={{ textAlign: "left" }}>
-                          {user?.application?.customers.map((sub) => sub.liabilities)}
-                        </td>
-                      </tr>
-                    </thead>
-                  </table>
+                  {user?.application?.filetype === "Person" ? (
+                    <>
+                      <table className="table table-striped" border="1">
+                        <thead>
+                          <tr>
+                            <td
+                              colSpan="4"
+                              style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                            >
+                              Basic Information.
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Name</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.name)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Employment Type</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.employmenttype)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Responsibilities</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.position)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Home Address</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.homeaddress)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Telephone</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.mobile)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Monthly Salary</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.netmonthsalary)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Date of Joining</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.datejoining)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Previous employer</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.preemployer)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Other Income (Amount)</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.otherincome)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Salary Account in EAB</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.account)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Citizenship</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.citizenship)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Other Banks</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.otherbanks)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Gender</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.gender)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Date of Brith</th>
+                            <td style={{ textAlign: "left" }}>{user?.application?.customers.map((sub) => sub?.dob)}</td>
+                          </tr>
+                          <tr>
+                            <th>Account opened date</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.eabopenedaccount)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Other liabilities</th>
+                            <td style={{ textAlign: "left" }}>
+                              {user?.application?.customers.map((sub) => sub?.liabilities)}
+                            </td>
+                          </tr>
+                        </thead>
+                      </table>
+                    </>
+                  ) : (
+                    <>
+                      <table className="table table-striped" border="1">
+                        <thead>
+                          <tr>
+                            <td
+                              colSpan="4"
+                              style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                            >
+                              Basic Information.
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Name</th>
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left", fontSize: 16, fontWeight: 700 }}>{sub.name}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Employment Type</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.employmenttype}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Responsibilities</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.position}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Home Address</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}> sub.homeaddress </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Telephone</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>sub.mobile </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Monthly Salary</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.netmonthsalary}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Date of Joining</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.datejoining}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Previous employer</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.preemployer}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Other Income (Amount)</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}> {sub.otherincome}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Salary Account in EAB</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}> {sub.account} </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Citizenship</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}> {sub.citizenship} </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Other Banks</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.otherbanks}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Gender</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.gender}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Date of Brith</th>
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.dob}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Account opened date</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.eabopenedaccount}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th>Other liabilities</th>
+
+                            {user?.application?.customers.map((sub) => (
+                              <td style={{ textAlign: "left" }}>{sub.liabilities} </td>
+                            ))}
+                          </tr>
+                        </thead>
+                      </table>
+                    </>
+                  )}
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -666,7 +832,6 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </tbody>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -706,7 +871,6 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </tfoot>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -748,7 +912,6 @@ const InvoiceDetails = ({ match }) => {
                       )}
                     </tbody>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -767,7 +930,7 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(user?.bank === "Other" && (
+                      {(user?.facility?.bank === "Other" && (
                         <tr>
                           <th scope="row">{user?.facility.facilityType}</th>
                           <td>{user?.facility.amountdisbursed}</td>
@@ -790,7 +953,6 @@ const InvoiceDetails = ({ match }) => {
                       )}
                     </tbody>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -813,7 +975,6 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </thead>
                   </table>
-
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -827,11 +988,13 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                       <tr>
                         <td>Monthly salary</td>
-                        <td>{user?.application?.customers.map((sub) => sub.netmonthsalary)}</td>
+                        <td>{user?.application?.customers.map((sub) => sub?.netmonthsalary)}</td>
                       </tr>
                       <tr>
                         <td>DBR</td>
-                        <td>25%</td>
+                        {user?.application?.customers.map((sub) => (
+                          <td>{DBR} %</td>
+                        ))}
                       </tr>
                     </thead>
                   </table>
@@ -869,6 +1032,67 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                     </tbody>
                   </table>
+                  {user?.application?.guarantors != null
+                    ? user?.application?.guarantors.map((item) => {
+                        return (
+                          <>
+                            {" "}
+                            <table className="table table-striped" border="1">
+                              <thead>
+                                <tr>
+                                  <td
+                                    colSpan="3"
+                                    style={{ textAlign: "left", fontSize: 16, fontWeight: 700, color: "#854fff" }}
+                                  >
+                                    Third Party Guarantor Details
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>Name</th>
+
+                                  <td style={{ textAlign: "left" }}>{item.name}</td>
+                                </tr>
+                                <tr>
+                                  <th>Relationship</th>
+
+                                  <td style={{ textAlign: "left" }}>{item.relationship}</td>
+                                </tr>
+                                <tr>
+                                  <th>Does have an account EAB? if yes Mention</th>
+
+                                  <td style={{ textAlign: "left" }}>{item.eabAccount}</td>
+                                </tr>
+                                <tr>
+                                  <th>If not EAB customer mention other banks details (name & account number)</th>
+
+                                  <td style={{ textAlign: "left" }}>
+                                    {item.bankname},{item.otheraccount}
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>Existing Banking Facilities</th>
+
+                                  <td style={{ textAlign: "left" }}>
+                                    {item.outstanding},{item.installment},{item.maturatiydate}
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>Full Address</th>
+
+                                  <td style={{ textAlign: "left" }}>{item.fulladdress}</td>
+                                </tr>
+                                <tr>
+                                  <th>Telphone</th>
+
+                                  <td style={{ textAlign: "left" }}>{item.telphone}</td>
+                                </tr>
+                              </thead>
+                            </table>
+                          </>
+                        );
+                      })
+                    : null}
+
                   <table className="table table-striped" border="1">
                     <thead>
                       <tr>
@@ -916,7 +1140,7 @@ const InvoiceDetails = ({ match }) => {
                       </tr>
                       <tr>
                         {user?.commit?.map((e) => (
-                          <td style={{ textAlign: "left", fontWeight: 800 }}>{e.name}</td>
+                          <td style={{ textAlign: "left", fontWeight: 800 }}>{e?.name}</td>
                         ))}
                       </tr>
                       <tr>
@@ -931,7 +1155,7 @@ const InvoiceDetails = ({ match }) => {
                               color={e.status === "Approve" ? "success" : e.status === "Reject" ? "danger" : "warning"}
                               className="badge-dot"
                             >
-                              {e.status}
+                              {e?.status}
                             </Badge>
                           </td>
                         ))}
@@ -1021,7 +1245,7 @@ const InvoiceDetails = ({ match }) => {
                   <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                     <li>
                       <Button color="primary" size="md" type="submit">
-                        Update
+                        {loading ? <Spinner size="lg" color="light" /> : "Submit"}
                       </Button>
                     </li>
                     <li>

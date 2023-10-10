@@ -11,6 +11,14 @@ import { useParams } from "react-router-dom";
 import { CustomToast } from "../../../utils/CustomToast";
 const InvoicePrint = ({ match }) => {
   const [item, setitem] = useState();
+  function getDate() {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+    const date = today.getDate();
+    return `${month}/${date}/${year}`;
+  }
+  const [currentDate, setCurrentDate] = useState(getDate());
   const [subtotalamount, setSubTotal] = useState();
   const [user, setUser] = useState([]);
   let { from, to } = useParams();
@@ -53,9 +61,10 @@ const InvoicePrint = ({ match }) => {
     total += item.totalamount;
     profitam += item.profitamount;
   });
+
   return (
     <body className="bg-white">
-      <Head title="Invoice Print"></Head>
+      <Head title="Report Print"></Head>
       <Content>
         <Block>
           <div className="invoice invoice-print">
@@ -77,33 +86,29 @@ const InvoicePrint = ({ match }) => {
 
               <div className="invoice-head">
                 <div className="invoice-contact">
-                  <span className="overline-title">Invoice To</span>
+                  <span className="overline-title">Report</span>
                   <div className="invoice-contact-info">
-                    <h4 className="title">Application</h4>
+                    <h4 className="title">Investment Applications</h4>
                     <ul className="list-plain">
                       <li>
                         <Icon name="map-pin-fill"></Icon>
                         <span>
-                          House #65, 4328 Marion Street
+                          Place du 27 Juin B.P. 2022 Djibouti
                           <br />
-                          Newbury, VT 05051
                         </span>
                       </li>
                       <li>
                         <Icon name="call-fill"></Icon>
-                        <span>Phone</span>
+                        <span> 21 31 19 00</span>
                       </li>
                     </ul>
                   </div>
                 </div>
                 <div className="invoice-desc">
-                  <h5 className="title">Application Details</h5>
+                  <h5 className="title">Detailed Report</h5>
                   <ul className="list-plain">
-                    <li className="invoice-id">
-                      <span>App ID</span>:<span>Order</span>
-                    </li>
                     <li className="invoice-date">
-                      <span>Date</span>:<span>ddd</span>
+                      <span>Date</span>:<span>{currentDate}</span>
                     </li>
                   </ul>
                 </div>

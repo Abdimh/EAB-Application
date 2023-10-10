@@ -32,7 +32,7 @@ const Login = () => {
       SetEmail(formData.email);
       SetPassword(formData.passcode);
       console.log(formData);
-      const response = await axios.post("/api/Account/Login", {
+      const response = await axios.post("https://localhost:7015/api/Account/Login", {
         email: formData.email,
         password: formData.passcode,
       });
@@ -89,7 +89,7 @@ const Login = () => {
               <FormGroup>
                 <div className="form-label-group">
                   <label className="form-label" htmlFor="default-01">
-                    Email or Username
+                    E-mail
                   </label>
                 </div>
                 <div className="form-control-wrap">
@@ -107,11 +107,8 @@ const Login = () => {
               <FormGroup>
                 <div className="form-label-group">
                   <label className="form-label" htmlFor="password">
-                    Passcode
+                    Password
                   </label>
-                  <Link className="link link-primary link-sm" to={`${process.env.PUBLIC_URL}/auth-reset`}>
-                    Forgot Code?
-                  </Link>
                 </div>
                 <div className="form-control-wrap">
                   <a
@@ -131,7 +128,7 @@ const Login = () => {
                     id="password"
                     name="passcode"
                     ref={register({ required: "This field is required" })}
-                    placeholder="Enter your passcode"
+                    placeholder="Enter your password"
                     className={`form-control-lg form-control ${passState ? "is-hidden" : "is-shown"}`}
                   />
                   {errors.passcode && <span className="invalid">{errors.passcode.message}</span>}

@@ -38,10 +38,11 @@ import DatePicker from "react-datepicker";
 import { CustomToast } from "../../../utils/CustomToast";
 import { BadRequest } from "../../../utils/Error";
 import moment from "moment";
-import { Alert, UncontrolledAlert } from "reactstrap";
+import { Alert, UncontrolledAlert, Spinner } from "reactstrap";
 import { log } from "util";
 //import { Value } from "sass";
 const InvoiceList = () => {
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [onSearch, setonSearch] = useState(true);
   const [existingFacility, setExistingFacility] = useState(false);
@@ -81,6 +82,7 @@ const InvoiceList = () => {
   const [startTime, setStartTime] = useState(new Date());
   const [month, setMonth] = useState(new Date());
   const [year, setYear] = useState(new Date());
+  const [purposeValue, setPurposeValue] = useState("");
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState();
   const [rangeDate, setRangeDate] = useState({
@@ -128,6 +130,7 @@ const InvoiceList = () => {
     telphone: "",
     outstanding: "",
     installment: "",
+    relationship: "",
     maturatiydate: "",
     applicationid: 0,
   });
@@ -190,11 +193,13 @@ const InvoiceList = () => {
   const onFormCancel = () => {
     setSelected([]);
     setModal({ edit: false, add: false });
+    setExistingFacility(false);
     resetForm();
   };
 
   // submit function to update a new item
   const onEditSubmit = async (sData) => {
+    setLoading(true);
     const {
       id,
       customerid,
@@ -229,7 +234,7 @@ const InvoiceList = () => {
       const RoleRes = await instanceAxios.put("IndividualApp", {
         applicationid: id,
         customerid: customerid,
-        purpose: purpose,
+        purpose: purposeValue,
         amount: amount,
         tenure: tenure,
         profitrate: profitrate,
@@ -263,7 +268,9 @@ const InvoiceList = () => {
 
       CustomToast("Successfully Updated", false, "success");
       resetForm();
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       // 401, 403, 400
       if (isAxiosError(error)) {
         const { response } = error;
@@ -365,6 +372,7 @@ const InvoiceList = () => {
   // submit function to add a new item
 
   const onFormSubmit = async (submitData) => {
+    setLoading(true);
     const array = [{ id: 1 }, { id: 2 }];
     const {
       customerid,
@@ -397,7 +405,7 @@ const InvoiceList = () => {
       const arraydata = [];
       selected.forEach((item) => arraydata.push(item.id));
       const data = {
-        purpose: purpose,
+        purpose: purposeValue,
         amount: amount,
         tenure: tenure,
         profitrate: profitrate,
@@ -435,9 +443,10 @@ const InvoiceList = () => {
 
       CustomToast("Successfully Added", false, "success");
       resetForm();
-
+      setLoading(false);
       console.log(data);
     } catch (error) {
+      setLoading(false);
       // 401, 403, 400
       if (isAxiosError(error)) {
         const { response, status } = error;
@@ -470,6 +479,7 @@ const InvoiceList = () => {
   // Submit guarantor
   const onFormGuarantor = async (submitData) => {
     try {
+      setLoading(true);
       const data = {
         name: submitData.name,
         eabAccount: submitData.EABAccount,
@@ -481,6 +491,7 @@ const InvoiceList = () => {
         installment: submitData.installment,
         maturatiydate: submitData.maturatiydate,
         applicationid: submitData.applicationid,
+        relationship: submitData.relationship,
       };
 
       const RoleRes = await instanceAxios.post("Guarantor", data).then((response) => {
@@ -492,6 +503,7 @@ const InvoiceList = () => {
 
       console.log(data);
     } catch (error) {
+      setLoading(false);
       // 401, 403, 400
       if (isAxiosError(error)) {
         const { response, status } = error;
@@ -590,6 +602,7 @@ const InvoiceList = () => {
   };
   useEffect(() => {
     setSelected([]);
+    setLoading(false);
   }, []);
 
   return (
@@ -636,9 +649,7 @@ const InvoiceList = () => {
               </div>
               <br />
               <BlockDes className="text-soft">
-                <p>
-                  {user.length}.{user.role.name}
-                </p>
+                <BlockDes className="text-soft">You have total {data.length} that you have created.</BlockDes>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
@@ -673,75 +684,6 @@ const InvoiceList = () => {
                         </Button>
                       </li>
                       <li className="btn-toolbar-sep"></li>
-                      <li>
-                        <UncontrolledDropdown>
-                          <DropdownToggle tag="a" className="dropdown-toggle btn btn-icon btn-trigger">
-                            <Icon name="setting"></Icon>
-                          </DropdownToggle>
-                          <DropdownMenu right>
-                            <ul className="link-check">
-                              <li>
-                                <span>Show</span>
-                              </li>
-                              <li className={itemPerPage === 10 ? "active" : ""}>
-                                <DropdownItem
-                                  tag="a"
-                                  href="#dropdownitem"
-                                  onClick={(ev) => {
-                                    ev.preventDefault();
-                                    setItemPerPage(10);
-                                  }}
-                                >
-                                  10
-                                </DropdownItem>
-                              </li>
-                              <li className={itemPerPage === 15 ? "active" : ""}>
-                                <DropdownItem
-                                  tag="a"
-                                  href="#dropdownitem"
-                                  onClick={(ev) => {
-                                    ev.preventDefault();
-                                    setItemPerPage(15);
-                                  }}
-                                >
-                                  15
-                                </DropdownItem>
-                              </li>
-                            </ul>
-                            <ul className="link-check">
-                              <li>
-                                <span>Order</span>
-                              </li>
-                              <li className={sort === "dsc" ? "active" : ""}>
-                                <DropdownItem
-                                  tag="a"
-                                  href="#dropdownitem"
-                                  onClick={(ev) => {
-                                    ev.preventDefault();
-                                    setSortState("dsc");
-                                    sortFunc("dsc");
-                                  }}
-                                >
-                                  DESC
-                                </DropdownItem>
-                              </li>
-                              <li className={sort === "asc" ? "active" : ""}>
-                                <DropdownItem
-                                  tag="a"
-                                  href="#dropdownitem"
-                                  onClick={(ev) => {
-                                    ev.preventDefault();
-                                    setSortState("asc");
-                                    sortFunc("asc");
-                                  }}
-                                >
-                                  ASC
-                                </DropdownItem>
-                              </li>
-                            </ul>
-                          </DropdownMenu>
-                        </UncontrolledDropdown>
-                      </li>
                     </ul>
                   </div>
                   <div className={`card-search search-wrap ${!onSearch ? "active" : ""}`}>
@@ -758,7 +700,7 @@ const InvoiceList = () => {
                       <input
                         type="text"
                         className="form-control border-transparent form-focus-none"
-                        placeholder="Search by Order Id"
+                        placeholder="Search by application"
                         value={onSearchText}
                         onChange={(e) => onFilterChange(e)}
                       />
@@ -806,6 +748,8 @@ const InvoiceList = () => {
                                         ? "success"
                                         : item.status === "Declined"
                                         ? "danger"
+                                        : item.status === "Delivered"
+                                        ? "success"
                                         : "warning"
                                     }
                                     className="badge-dot"
@@ -939,21 +883,51 @@ const InvoiceList = () => {
                         </div>
                       </FormGroup>
                     </Col>
-                    <Col md="6">
-                      <FormGroup>
-                        <label className="form-label">Purpose</label>
-                        <input
-                          type="text"
-                          name="purpose"
-                          defaultValue={formData.purpose}
-                          placeholder="Enter purpose"
-                          className="form-control"
-                          ref={register({
-                            required: "This field is required",
-                          })}
-                        />
-                        {errors.purpose && <span className="invalid">{errors.purpose.message}</span>}
-                      </FormGroup>
+
+                    <Col size="6">
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="product-title">
+                          Select Facility Type
+                        </label>
+                        <div className="form-control-wrap">
+                          <select
+                            className="form-control"
+                            name="purpose"
+                            defaultValue={purposeValue}
+                            onChange={(e) => setPurposeValue(e.target.value)}
+                            ref={register({ required: "This field is required" })}
+                          >
+                            <option value="Leased Assets">Leased Assets</option>
+                            <option value="Migrated Ijara Leased Assets">Migrated Ijara Leased Assets</option>
+                            <option value="Istisna under Construction">Istisna under Construction</option>
+                            <option value="Murabaha Commodity Financing">Murabaha Commodity Financing</option>
+                            <option value="Murabaha Commodity Financial Instit">
+                              Murabaha Commodity Financial Instit
+                            </option>
+                            <option value="Collateral Financing project">Collateral Financing project</option>
+                            <option value="Murabaha Commodity Fin Qtly Instit">
+                              Murabaha Commodity Fin Qtly Instit{" "}
+                            </option>
+                            <option value="Murabaha Goods">Murabaha Goods</option>
+                            <option value="SME Murabaha Goods Profit first MIG">
+                              SME Murabaha Goods Profit first MIG
+                            </option>
+                            <option value="Murabaha Goods Migration">Murabaha Goods Migration</option>
+                            <option value="Murabaha Vehicle Multiple Asset">Murabaha Vehicle Multiple Asset</option>
+                            <option value="Murabaha Motor Vehicles">Murabaha Motor Vehicles</option>
+                            <option value="Murabaha Goods Profit First">Murabaha Goods Profit First</option>
+                            <option value="Real Estate Murabaha">Real Estate Murabaha</option>
+                            <option value="Mudaraba">Mudaraba</option>
+                            <option value="MUSAWAMAH FOR SALAM">MUSAWAMAH FOR SALAM</option>
+                            <option value="Musharaka">Musharaka</option>
+                            <option value="PARALLEL SALAM PRODUCT">PARALLEL SALAM PRODUCT</option>
+                            <option value="QARD HASSAN">QARD HASSAN</option>
+                            <option value="Salary Advance Financing">Salary Advance Financing</option>
+                            <option value="SALAM PRODUCT">SALAM PRODUCT</option>
+                            <option value="MURABAHA FOR SALAM">MURABAHA FOR SALAM</option>
+                          </select>
+                        </div>
+                      </div>
                     </Col>
                     <Col md="6">
                       <FormGroup>
@@ -1191,8 +1165,34 @@ const InvoiceList = () => {
                                 onChange={(e) => setFacilityValue(e.target.value)}
                                 ref={register({ required: "This field is required" })}
                               >
-                                <option value="Murabaha">Murabaha</option>
-                                <option value="Other">Other</option>
+                                <option value="Leased Assets">Leased Assets</option>
+                                <option value="Migrated Ijara Leased Assets">Migrated Ijara Leased Assets</option>
+                                <option value="Istisna under Construction">Istisna under Construction</option>
+                                <option value="Murabaha Commodity Financing">Murabaha Commodity Financing</option>
+                                <option value="Murabaha Commodity Financial Instit">
+                                  Murabaha Commodity Financial Instit
+                                </option>
+                                <option value="Collateral Financing project">Collateral Financing project</option>
+                                <option value="Murabaha Commodity Fin Qtly Instit">
+                                  Murabaha Commodity Fin Qtly Instit{" "}
+                                </option>
+                                <option value="Murabaha Goods">Murabaha Goods</option>
+                                <option value="SME Murabaha Goods Profit first MIG">
+                                  SME Murabaha Goods Profit first MIG
+                                </option>
+                                <option value="Murabaha Goods Migration">Murabaha Goods Migration</option>
+                                <option value="Murabaha Vehicle Multiple Asset">Murabaha Vehicle Multiple Asset</option>
+                                <option value="Murabaha Motor Vehicles">Murabaha Motor Vehicles</option>
+                                <option value="Murabaha Goods Profit First">Murabaha Goods Profit First</option>
+                                <option value="Real Estate Murabaha">Real Estate Murabaha</option>
+                                <option value="Mudaraba">Mudaraba</option>
+                                <option value="MUSAWAMAH FOR SALAM">MUSAWAMAH FOR SALAM</option>
+                                <option value="Musharaka">Musharaka</option>
+                                <option value="PARALLEL SALAM PRODUCT">PARALLEL SALAM PRODUCT</option>
+                                <option value="QARD HASSAN">QARD HASSAN</option>
+                                <option value="Salary Advance Financing">Salary Advance Financing</option>
+                                <option value="SALAM PRODUCT">SALAM PRODUCT</option>
+                                <option value="MURABAHA FOR SALAM">MURABAHA FOR SALAM</option>
                               </select>
                             </div>
                           </div>
@@ -1316,7 +1316,7 @@ const InvoiceList = () => {
                       <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                         <li>
                           <Button color="primary" size="md" type="submit">
-                            Add Application
+                            {loading ? <Spinner size="sm" color="light" /> : "Submit"}
                           </Button>
                         </li>
 
@@ -1392,23 +1392,6 @@ const InvoiceList = () => {
                 })}
 
                 <Form className="row gy-4" onSubmit={handleSubmit(onEditSubmit)}>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">File Type</label>
-                      <div className="form-control-wrap">
-                        <select
-                          name="type"
-                          className="form-control"
-                          defaultValue={formData.type}
-                          onChange={(e) => setFileValue(e.target.value)}
-                          ref={register({ required: "This field is required" })}
-                        >
-                          <option value={"Group"}>Group</option>
-                          <option value={"Person"}>Person</option>
-                        </select>
-                      </div>
-                    </FormGroup>
-                  </Col>
                   <Col md="12">
                     <FormGroup>
                       <label className="form-label">Application ID</label>
@@ -1425,22 +1408,67 @@ const InvoiceList = () => {
                       {errors.id && <span className="invalid">{errors.id.message}</span>}
                     </FormGroup>
                   </Col>
-
-                  <Col md="6">
+                  <Col md="12">
                     <FormGroup>
-                      <label className="form-label">Purpose</label>
-                      <input
-                        type="text"
-                        name="purpose"
-                        defaultValue={formData.purpose}
-                        placeholder="Enter purpose"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.account && <span className="invalid">{errors.purpose.message}</span>}
+                      <label className="form-label">File Type</label>
+                      <div className="form-control-wrap">
+                        <select
+                          name="type"
+                          className="form-control"
+                          defaultValue={formData.type}
+                          onChange={(e) => setFileValue(e.target.value)}
+                          ref={register({ required: "This field is required" })}
+                        >
+                          <option value={"Group"}>Group</option>
+                          <option value={"Person"}>Person</option>
+                        </select>
+                      </div>
                     </FormGroup>
+                  </Col>
+                  <Col size="6">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="product-title">
+                        Select Facility Type
+                      </label>
+                      <div className="form-control-wrap">
+                        <select
+                          className="form-control"
+                          name="purpose"
+                          defaultValue={purposeValue}
+                          onChange={(e) => setPurposeValue(e.target.value)}
+                          ref={register({ required: "This field is required" })}
+                        >
+                          <option value="Leased Assets">Leased Assets</option>
+                          <option value="Migrated Ijara Leased Assets">Migrated Ijara Leased Assets</option>
+                          <option value="Istisna under Construction">Istisna under Construction</option>
+                          <option value="Murabaha Commodity Financing">Murabaha Commodity Financing</option>
+                          <option value="Murabaha Commodity Financial Instit">
+                            Murabaha Commodity Financial Instit
+                          </option>
+                          <option value="Collateral Financing project">Collateral Financing project</option>
+                          <option value="Murabaha Commodity Fin Qtly Instit">
+                            Murabaha Commodity Fin Qtly Instit{" "}
+                          </option>
+                          <option value="Murabaha Goods">Murabaha Goods</option>
+                          <option value="SME Murabaha Goods Profit first MIG">
+                            SME Murabaha Goods Profit first MIG
+                          </option>
+                          <option value="Murabaha Goods Migration">Murabaha Goods Migration</option>
+                          <option value="Murabaha Vehicle Multiple Asset">Murabaha Vehicle Multiple Asset</option>
+                          <option value="Murabaha Motor Vehicles">Murabaha Motor Vehicles</option>
+                          <option value="Murabaha Goods Profit First">Murabaha Goods Profit First</option>
+                          <option value="Real Estate Murabaha">Real Estate Murabaha</option>
+                          <option value="Mudaraba">Mudaraba</option>
+                          <option value="MUSAWAMAH FOR SALAM">MUSAWAMAH FOR SALAM</option>
+                          <option value="Musharaka">Musharaka</option>
+                          <option value="PARALLEL SALAM PRODUCT">PARALLEL SALAM PRODUCT</option>
+                          <option value="QARD HASSAN">QARD HASSAN</option>
+                          <option value="Salary Advance Financing">Salary Advance Financing</option>
+                          <option value="SALAM PRODUCT">SALAM PRODUCT</option>
+                          <option value="MURABAHA FOR SALAM">MURABAHA FOR SALAM</option>
+                        </select>
+                      </div>
+                    </div>
                   </Col>
                   <Col md="6">
                     <FormGroup>
@@ -1634,24 +1662,7 @@ const InvoiceList = () => {
                       {errors.citizenship && <span className="invalid">{errors.contribution.message}</span>}
                     </FormGroup>
                   </Col>
-                  <Col size="6">
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="product-title">
-                        Status
-                      </label>
-                      <div className="form-control-wrap">
-                        <select
-                          className="form-control"
-                          name="status"
-                          defaultValue={formData.status}
-                          onChange={(e) => setFacilityValue(e.target.value)}
-                          ref={register({ required: "This field is required" })}
-                        >
-                          <option value="Proposal">Proposal</option>
-                        </select>
-                      </div>
-                    </div>
-                  </Col>
+
                   <Col md="12">
                     <div className="preview-block">
                       <span className="preview-title overline-title">Existing Facilities Available</span>
@@ -1814,7 +1825,7 @@ const InvoiceList = () => {
                     <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                       <li>
                         <Button color="primary" size="md" type="submit">
-                          Update
+                          {loading ? <Spinner size="sm" color="light" /> : "Update"}
                         </Button>
                       </li>
 
@@ -1887,6 +1898,36 @@ const InvoiceList = () => {
                         })}
                       />
                       {errors.name && <span className="invalid">{errors.name.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Telphone</label>
+                      <input
+                        type="text"
+                        name="telphone"
+                        placeholder="Enter Telphone"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.telphone && <span className="invalid">{errors.telphone.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Relationship</label>
+                      <input
+                        type="text"
+                        name="relationship"
+                        placeholder="Enter Relationship"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.relationship && <span className="invalid">{errors.relationship.message}</span>}
                     </FormGroup>
                   </Col>
                   <Col md="6">
@@ -2006,7 +2047,7 @@ const InvoiceList = () => {
                     <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                       <li>
                         <Button color="primary" size="md" type="submit">
-                          Submit
+                          {loading ? <Spinner size="sm" color="light" /> : "Submit"}
                         </Button>
                       </li>
 

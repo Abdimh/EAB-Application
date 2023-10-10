@@ -77,7 +77,7 @@ const InvoicePrint = ({ match }) => {
                         <span>Application ID</span>:<span>{user?.application?.id}</span>
                       </li>
                       <li className="invoice-date">
-                        <span>Date</span>:<span>{user?.application?.createddate}</span>
+                        <span>Date</span>:<span>{new Date(user?.application?.createddate).toLocaleDateString()}</span>
                       </li>
                     </ul>
                   </div>
