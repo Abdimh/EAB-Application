@@ -32,7 +32,7 @@ const Login = () => {
       SetEmail(formData.email);
       SetPassword(formData.passcode);
       console.log(formData);
-      const response = await axios.post("https://localhost:7015/api/Account/Login", {
+      const response = await axios.post("/api/Account/Login", {
         email: formData.email,
         password: formData.passcode,
       });

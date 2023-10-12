@@ -62,7 +62,7 @@ const KycDetailsRegular = ({ match }) => {
   };
 
   const getFile = async (row) => {
-    const Endpoint = `Upload/download/${row.id}`;
+    const Endpoint = `Businessfiles/download/${row.id}`;
     axios({
       url: "/api/" + Endpoint, // your url
       method: "POST",
@@ -71,6 +71,7 @@ const KycDetailsRegular = ({ match }) => {
       FileSaver.saveAs(res.data, row.filepath);
     });
   };
+
   const [userdata, setUserData] = useState({
     expireIn: Number,
     expireTimeStamp: String,
@@ -113,7 +114,6 @@ const KycDetailsRegular = ({ match }) => {
       .post(Endpoint, {
         recommendation: inputText,
         role: userdata.role.name,
-        name: userdata.fullname,
         application: id,
       })
       .then((response) => {
@@ -143,7 +143,7 @@ const KycDetailsRegular = ({ match }) => {
   const getUploads = async () => {
     const idget = match.params.id;
     try {
-      const Endpoint = `/api/Upload/${idget}`;
+      const Endpoint = `Businessfiles/${idget}`;
       const data = await instanceAxios.get(Endpoint);
 
       setUser(data.data);
@@ -165,7 +165,7 @@ const KycDetailsRegular = ({ match }) => {
         formData.append(`Applicationid`, id);
       });
 
-      const RoleRes = instanceAxios.post("Upload", formData, {
+      const RoleRes = instanceAxios.post("Businessfiles", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -198,7 +198,7 @@ const KycDetailsRegular = ({ match }) => {
   const getvotes = async () => {
     try {
       const id = match.params.id;
-      const Endpoint = `Voting/${id}`;
+      const Endpoint = `BusinessVoting/${id}`;
       const data = await instanceAxios.get(Endpoint);
 
       setRecommended(data.data);
@@ -242,7 +242,7 @@ const KycDetailsRegular = ({ match }) => {
                   <div className="card-inner">
                     <div className="card-title-group">
                       <div className="card-title">
-                        <h5 className="title">Credit Commitee Decisions</h5>
+                        <h5 className="title">Credit sss Commitee Decisions</h5>
                       </div>
                     </div>
                   </div>
@@ -333,7 +333,7 @@ const KycDetailsRegular = ({ match }) => {
 
                         <>
                           <div className="info">
-                            <div className="title">{row.name}</div>
+                            <div className="title">{row.role}</div>
                             <div className="price">{row.recommendation}.</div>
                           </div>
                           <div className="total">

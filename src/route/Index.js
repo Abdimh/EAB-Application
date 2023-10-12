@@ -92,11 +92,14 @@ import OrderRegular from "../pages/pre-built/orders/OrderRegular";
 import OrderSales from "../pages/pre-built/orders/OrderSales";
 import KycListRegular from "../pages/pre-built/kyc-list-regular/KycListRegular";
 import ApplicationAttachments from "../pages/pre-built/kyc-list-regular/Applicationdetails";
+import BusinessAttachmentAttachments from "../pages/pre-built/kyc-list-regular/Investmentdetails";
 import ProductCard from "../pages/pre-built/Applications/ProductCard";
 import ApplicationsList from "../pages/pre-built/Applications/ApplicationsList";
 import ProductDetails from "../pages/pre-built/Applications/ProductDetails";
+import filehistory from "../pages/pre-built/Investments/Filehistory";
 import individualinvestments from "../pages/pre-built/Investments/individualinvestments";
 import businessinvestmentList from "../pages/pre-built/Investments/Businessinvestments";
+import businessdetails from "../pages/pre-built/Investments/InvestmentDetails";
 import ApplcationDetails from "../pages/pre-built/Investments/ApplicationDetails";
 import BusinessDetails from "../pages/pre-built/Investments/BusinessDetails";
 import PricingTable from "../pages/pre-built/pricing-table/PricingTable";
@@ -150,12 +153,10 @@ const Pages = () => {
         ></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/ecommerce/settings`} component={EcomSettings}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/ecommerce/integration`} component={EcomIntegration}></Route>
-
         {/*Dashboards*/}
         <Route exact path={`${process.env.PUBLIC_URL}/sales`} component={Sales}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/analytics`} component={Analytics}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/_blank`} component={Blank}></Route>
-
         {/*Pre-built Pages*/}
         <Route exact path={`${process.env.PUBLIC_URL}/project-card`} component={ProjectCardPage}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/customers-list`} component={CustomersList}></Route>
@@ -196,8 +197,12 @@ const Pages = () => {
           path={`${process.env.PUBLIC_URL}/application-attachments/:id`}
           component={ApplicationAttachments}
         ></Route>
+        <Route
+          exact
+          path={`${process.env.PUBLIC_URL}/business-attachments/:id`}
+          component={BusinessAttachmentAttachments}
+        ></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/applications-list`} component={ApplicationsList}></Route>
-
         <Route // context api added
           exact
           path={`${process.env.PUBLIC_URL}/product-card`}
@@ -221,20 +226,19 @@ const Pages = () => {
           path={`${process.env.PUBLIC_URL}/individual-investments`}
           component={individualinvestments}
         ></Route>
-
+        <Route path={`${process.env.PUBLIC_URL}/file-history`} component={filehistory}></Route>
+        <Route path={`${process.env.PUBLIC_URL}/investments-details/:id`} component={businessdetails}></Route>
         <Route path={`${process.env.PUBLIC_URL}/business-investments`} component={businessinvestmentList}></Route>
         <Route path={`${process.env.PUBLIC_URL}/reset-password`} component={resetpassword}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/application-details/:id`} component={ApplcationDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/business-details/:id`} component={BusinessDetails}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pricing-table`} component={PricingTable}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/image-gallery`} component={GalleryPreview}></Route>
-
         {/*Demo Pages*/}
         <Route exact path={`${process.env.PUBLIC_URL}/pages/terms-policy`} component={Terms}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pages/faq`} component={Faq}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pages/regular-v1`} component={Regularv1}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/pages/regular-v2`} component={Regularv2}></Route>
-
         {/*Application*/}
         <Route exact path={`${process.env.PUBLIC_URL}/app-messages`} component={AppMessages}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/app-chat`} component={Chat}></Route>
@@ -313,7 +317,6 @@ const Pages = () => {
             </FileManagerContextProvider>
           )}
         ></Route>
-
         {/*Components*/}
         <Route exact path={`${process.env.PUBLIC_URL}/components`} component={Component}></Route>
         <Route exact path={`${process.env.PUBLIC_URL}/components/accordions`} component={Accordian}></Route>

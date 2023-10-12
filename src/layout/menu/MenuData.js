@@ -63,6 +63,27 @@ const menu = [
       },
     ],
   },
+
+  {
+    icon: "file-docs",
+    text: "File History Report",
+    active: false,
+    allowedRole: [
+      "Relation Officer PI",
+      "Relation Manager PI",
+      "Sharia",
+      "Credit Analyst",
+      "Credit Administration",
+      "Credit Committee",
+      "Operation",
+    ],
+    subMenu: [
+      {
+        text: "Application History",
+        link: "/file-history",
+      },
+    ],
+  },
   {
     icon: "file-docs",
     text: "Business Investments",

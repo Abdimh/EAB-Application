@@ -40,10 +40,14 @@ import { BadRequest } from "../../../utils/Error";
 import moment from "moment";
 import { Alert, UncontrolledAlert, Spinner } from "reactstrap";
 import { log } from "util";
+import DataTable from "react-data-table-component";
 //import { Value } from "sass";
 const InvoiceList = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+
+  const [search, SetSearch] = useState("");
+  const [filter, setFilter] = useState([]);
   const [onSearch, setonSearch] = useState(true);
   const [existingFacility, setExistingFacility] = useState(false);
   const [isro, setIsRo] = useState(true);
@@ -74,31 +78,30 @@ const InvoiceList = () => {
     facility: false,
     guarantor: false,
   });
+
   const [editId, setEditedId] = useState();
   //const [data, setData] = useState(projectData);
-  const [genderValue, setGenderValue] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [startIconDate, setStartIconDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
-  const [month, setMonth] = useState(new Date());
-  const [year, setYear] = useState(new Date());
+
   const [purposeValue, setPurposeValue] = useState("");
   const [rangeStart, setRangeStart] = useState(new Date());
   const [rangeEnd, setRangeEnd] = useState();
+
   const [rangeDate, setRangeDate] = useState({
     start: new Date(),
     end: null,
   });
+  const [installment, setInstallment] = useState();
+  const [profitrate, setProfitRate] = useState();
+  const [rate, setRate] = useState();
+  const [profitamount, setProfitAmount] = useState();
+  const [totalamount, setTotalAmount] = useState();
+  const [years, setYears] = useState();
   const [amount, setAmount] = useState();
-  const [profitAmount, setProfit] = useState();
-  const [totalAmount, setTotalAmount] = useState();
-  const [rate, setRate] = useState({
-    start: new Date(),
-    end: null,
-  });
+  const [dbr, setDBR] = useState();
   const [dateFrom, setDateFrom] = useState(new Date(Date.now()));
   const [dateTo, setDateTo] = useState(new Date(Date.now()));
   const [id, setId] = useState("");
+  const [hidedata, setHideData] = useState(false);
   const [artists, setArtists] = useState([]);
   const [formData, setFormData] = useState({
     id: 0,
@@ -118,6 +121,9 @@ const InvoiceList = () => {
     status: "",
     statuscheck: "",
     type: "",
+    years: 0,
+    yearrate: 0,
+    phone: "",
   });
 
   const [guarantorform, setGuarantorForm] = useState({
@@ -134,17 +140,6 @@ const InvoiceList = () => {
     maturatiydate: "",
     applicationid: 0,
   });
-  // Sorting data
-  const sortFunc = () => {
-    let defaultData = data;
-    if (sort === "dsc") {
-      let sortedData = defaultData.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
-      setData([...sortedData]);
-    } else if (sort === "asc") {
-      let sortedData = defaultData.sort((a, b) => parseFloat(b.id) - parseFloat(a.id));
-      setData([...sortedData]);
-    }
-  };
 
   const fetchdata = () => {
     const data = JSON.parse(localStorage.getItem("user"));
@@ -153,14 +148,35 @@ const InvoiceList = () => {
   };
   const getApplications = async () => {
     try {
-      const datares = await instanceAxios.get("IndividualApp");
-      console.log(data.data);
-      setData(datares.data);
+      const req = await instanceAxios.get("IndividualApp");
+
+      setData(req.data);
+      setFilter(req.data);
     } catch (e) {
       console.log(e);
     }
   };
 
+  const changeRate = (e) => {
+    const years = e.target.value;
+
+    // calculate rate percentage
+
+    const num = years * rate;
+
+    setYears(years);
+    /// set profit rate 22.5
+    setProfitRate(num);
+    // set total profit
+    const totalprofit = (num / 100) * amount;
+
+    console.log(totalprofit.toFixed(2));
+
+    setProfitAmount(totalprofit);
+    // set total amount
+
+    setTotalAmount(parseFloat(totalprofit) + parseFloat(amount));
+  };
   // function to reset the form
   const resetForm = () => {
     setFormData({
@@ -169,7 +185,7 @@ const InvoiceList = () => {
       purpose: "",
       amount: Number,
       facilityperiod: Number,
-      profitrate: "",
+      profitrate: 0,
       profitamount: Number,
       totalamount: Number,
       monthlyinstallment: Number,
@@ -177,16 +193,23 @@ const InvoiceList = () => {
       securitydetails: "",
       securitydescription: "",
       value: Number,
+      totalamount: 0,
       contributio: 0,
       status: "",
       statuscheck: "",
       type: "",
+      yearrate: 0,
     });
-    setProfit();
+
     setSelected([]);
     setAmount();
-    setTotalAmount();
-    setRate();
+    setTotalAmount(0);
+    setRate(0);
+    setProfitRate();
+    setInstallment();
+    setProfitAmount(0);
+    setInstallment();
+    setYears();
   };
 
   // function to close the form modal
@@ -194,8 +217,66 @@ const InvoiceList = () => {
     setSelected([]);
     setModal({ edit: false, add: false });
     setExistingFacility(false);
+    setRate(0);
     resetForm();
   };
+  // Columns
+
+  const columns = [
+    {
+      name: "Customer",
+      selector: (row) => row?.customers.map((sub) => sub?.name),
+      width: "10rem",
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone,
+    },
+    {
+      name: "Amount",
+      selector: (row) => row.amount,
+    },
+    {
+      name: "Profit Amount",
+      selector: (row) => row.profitamount,
+    },
+    {
+      name: "Total Amount",
+      selector: (row) => row.totalamount,
+    },
+
+    user.role.name === "Relation Officer PI" && {
+      name: "Action",
+      cell: (row) => (
+        <Button color="primary" size="sm" className="btn btn-dim" onClick={() => onEditClick(row.id)}>
+          Edit
+        </Button>
+      ),
+      width: "6rem",
+    },
+
+    user.role.name === "Relation Officer PI" && {
+      name: "Action",
+
+      cell: (row) => (
+        <Button color="primary" size="sm" className="btn btn-dim" onClick={() => setModal({ guarantor: true })}>
+          Add
+        </Button>
+      ),
+      width: "6rem",
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <Link to={`${process.env.PUBLIC_URL}/application-details/${row.id}`}>
+          <Button color="primary" size="sm" className="btn btn-dim">
+            View
+          </Button>
+        </Link>
+      ),
+      width: "6rem",
+    },
+  ];
 
   // submit function to update a new item
   const onEditSubmit = async (sData) => {
@@ -261,6 +342,9 @@ const InvoiceList = () => {
         status: status,
         checkstatus: sData.statuscheck,
         filetype: sData.type,
+        rateyear: rate,
+        years: years,
+        phone: sData.phone,
       });
 
       const { data } = RoleRes;
@@ -313,7 +397,7 @@ const InvoiceList = () => {
       amount: data.application.amount,
       tenure: data.application.tenure,
       profitrate: data.application.profitrate,
-      profitamount: data.application.profitamount,
+      phone: data.application.phone,
       totalamount: data.application.totalamount,
       monthlyinstallment: data.application.monthlyinstallment,
       sourceofpayment: data.application.sourceofpayment,
@@ -333,9 +417,16 @@ const InvoiceList = () => {
       status: data.application.status,
       statuscheck: data.application.checkstatus,
       type: data.application.filetype,
+      yearrate: data.application.rateyear,
+      year: data.application.years,
     });
 
+    setYears(data.application.years);
+    setProfitAmount(data.application.profitamount);
+    setRate(data.application.profitrate);
     checkApplicationHasCustomer(data);
+
+    setTotalAmount(data.application.totalamount);
 
     if (data.facility?.facilityType === null) {
       setExistingFacility(true);
@@ -369,6 +460,16 @@ const InvoiceList = () => {
     getApplications();
     resetForm();
   }, []);
+
+  /// Search data
+
+  useEffect(() => {
+    const result = data.filter((item) => {
+      return item.phone.toLowerCase().match(search.toLocaleLowerCase());
+    });
+    setFilter(result);
+  }, [search]);
+
   // submit function to add a new item
 
   const onFormSubmit = async (submitData) => {
@@ -429,6 +530,9 @@ const InvoiceList = () => {
         bank: bank,
         checkstatus: submitData.statuscheck,
         filetype: submitData.type,
+        rateyear: rate,
+        years: years,
+        phone: submitData.phone,
       };
 
       const RoleRes = await instanceAxios
@@ -536,43 +640,36 @@ const InvoiceList = () => {
   var todate = moment(rangeEnd).format("YYYY-MM-DD");
 
   // onChange function for searching name
-  const onFilterChange = (e) => {
-    setSearchText(e.target.value);
-  };
-
-  // Get current list, pagination
-  const indexOfLastItem = currentPage * itemPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
   // Change Page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // function to toggle the search option
-  const toggle = () => setonSearch(!onSearch);
+
   const { errors, register, handleSubmit, setValue } = useForm();
 
   const options = customers.map(function (item) {
     return <option value={item.id}>{item.name}</option>;
   });
 
-  const { maths, physics, chem } = data;
-  const per = ((data.maths + data.physics + data.chem) / 100) * 100;
+  // Set Profit Rate and Profit amount
+
+  // Set Profit Amount
+
+  // Set Total amount
+
+  // Set Monthly Installment
 
   const onRangeChange = (dates) => {
     const [start, end] = dates;
     setRangeDate({ start: start, end: end });
   };
-  const changeRate = (e) => {
-    const rate = e.target.value;
-    const prof = (amount * rate) / 100;
-    setProfit(prof);
 
-    const total = parseInt(amount) + parseInt(prof);
-    setTotalAmount(total);
-    // setFirstVal(e.target.value * 2);
+  const Changeinstallment = (e) => {
+    const installment = totalamount / e.target.value;
+
+    console.log(dbr);
+    setInstallment(installment.toFixed(2));
   };
-
   const selectedHandler = (id) => {
     let newSelected = [...selected];
 
@@ -604,7 +701,7 @@ const InvoiceList = () => {
     setSelected([]);
     setLoading(false);
   }, []);
-
+  console.log(amount);
   return (
     <React.Fragment>
       <Head title="Personal Investments"></Head>
@@ -675,144 +772,24 @@ const InvoiceList = () => {
                   <div className="card-title">
                     <h5 className="title">All Applications</h5>
                   </div>
-
-                  <div className="card-tools mr-n1">
-                    <ul className="btn-toolbar">
-                      <li>
-                        <Button onClick={toggle} className="btn-icon search-toggle toggle-search">
-                          <Icon name="search"></Icon>
-                        </Button>
-                      </li>
-                      <li className="btn-toolbar-sep"></li>
-                    </ul>
-                  </div>
-                  <div className={`card-search search-wrap ${!onSearch ? "active" : ""}`}>
-                    <div className="search-content">
-                      <Button
-                        className="search-back btn-icon toggle-search"
-                        onClick={() => {
-                          setSearchText("");
-                          toggle();
-                        }}
-                      >
-                        <Icon name="arrow-left"></Icon>
-                      </Button>
-                      <input
-                        type="text"
-                        className="form-control border-transparent form-focus-none"
-                        placeholder="Search by application"
-                        value={onSearchText}
-                        onChange={(e) => onFilterChange(e)}
-                      />
-                      <Button className="search-submit btn-icon">
-                        <Icon name="search"></Icon>
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </div>
               <div className="card-inner p-0">
-                <table className="table table-orders">
-                  <thead className="tb-odr-head">
-                    <tr className="tb-odr-item">
-                      <th className="tb-odr-info">
-                        <span className="tb-odr-id">ID</span>
-                        <span className="tb-odr-date d-none d-md-inline-block">Customer Name</span>
-                      </th>
-                      <th className="tb-odr-amount">
-                        <span className="tb-odr-total">Amount</span>
-                        <span className="tb-odr-status d-none d-md-inline-block">Status</span>
-                      </th>
-                      <th className="tb-odr-action">&nbsp;</th>
-                    </tr>
-                  </thead>
-                  <tbody className="tb-odr-body">
-                    {currentItems.length > 0
-                      ? currentItems.map((item) => {
-                          return (
-                            <tr className="tb-odr-item" key={item.id}>
-                              <td className="tb-odr-info">
-                                <span className="tb-odr-id">
-                                  <Link to={`${process.env.PUBLIC_URL}/invoice-details/${item.id}`}>#{item.id}</Link>
-                                </span>
-                                <span className="tb-odr-date">{item?.customers?.map((sub) => sub?.name)}</span>
-                              </td>
-                              <td className="tb-odr-amount">
-                                <span className="tb-odr-total">
-                                  <span className="amount">${item.amount}</span>
-                                </span>
-                                <span className="tb-odr-status">
-                                  <Badge
-                                    color={
-                                      item.status === "Approved"
-                                        ? "success"
-                                        : item.status === "Declined"
-                                        ? "danger"
-                                        : item.status === "Delivered"
-                                        ? "success"
-                                        : "warning"
-                                    }
-                                    className="badge-dot"
-                                  >
-                                    {item.status}
-                                  </Badge>
-                                </span>
-                              </td>
-                              <td className="tb-odr-action">
-                                <div className="tb-odr-btns d-none d-sm-inline">
-                                  {user.role.name === "Relation Officer PI" && (
-                                    <Button
-                                      color="primary"
-                                      size="sm"
-                                      className="btn btn-dim"
-                                      onClick={() => onguarantorClick(item.id)}
-                                    >
-                                      <Icon name="plus"></Icon>
-                                    </Button>
-                                  )}
-                                  {user.role.name === "Relation Officer PI" && (
-                                    <Button
-                                      color="primary"
-                                      size="sm"
-                                      className="btn btn-dim"
-                                      onClick={() => onEditClick(item.id)}
-                                    >
-                                      Edit
-                                    </Button>
-                                  )}
-                                  <Link to={`${process.env.PUBLIC_URL}/application-details/${item.id}`}>
-                                    <Button color="primary" size="sm" className="btn btn-dim">
-                                      View
-                                    </Button>
-                                  </Link>
-                                </div>
-                                <Link to={`${process.env.PUBLIC_URL}/invoice-details/${item.id}`}>
-                                  <Button className="btn-pd-auto d-sm-none">
-                                    <Icon name="chevron-right"></Icon>
-                                  </Button>
-                                </Link>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      : null}
-                  </tbody>
-                </table>
-              </div>
-              <div className="card-inner">
-                {currentItems.length > 0 ? (
-                  <PaginationComponent
-                    noDown
-                    itemPerPage={itemPerPage}
-                    totalItems={data.length}
-                    paginate={paginate}
-                    currentPage={currentPage}
-                  />
-                ) : (
-                  <div className="text-center">
-                    <span className="text-silent">No data found</span>
-                  </div>
-                )}
+                <DataTable
+                  columns={columns}
+                  data={filter}
+                  pagination
+                  subHeader
+                  subHeaderComponent={
+                    <input
+                      type="text"
+                      className="w-100 form-control"
+                      placeholder="Search by customer's phone"
+                      value={search}
+                      onChange={(e) => SetSearch(e.target.value)}
+                    />
+                  }
+                />
               </div>
             </div>
           </Card>
@@ -877,7 +854,7 @@ const InvoiceList = () => {
                             onChange={(e) => setFileValue(e.target.value)}
                             ref={register({ required: "This field is required" })}
                           >
-                            <option value={"Group"}>Group</option>
+                            <option value={"Joint"}>Joint</option>
                             <option value={"Person"}>Person</option>
                           </select>
                         </div>
@@ -931,10 +908,26 @@ const InvoiceList = () => {
                     </Col>
                     <Col md="6">
                       <FormGroup>
+                        <label className="form-label">Customer Phone</label>
+                        <input
+                          type="number"
+                          step="any"
+                          name="phone"
+                          placeholder="Enter Phone"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors.phone && <span className="invalid">{errors.phone.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
                         <label className="form-label">Amount</label>
                         <input
                           type="number"
-                          step=".01"
+                          step="any"
                           name="amount"
                           placeholder="Enter amount"
                           className="form-control"
@@ -949,17 +942,53 @@ const InvoiceList = () => {
 
                     <Col md="6">
                       <FormGroup>
-                        <label className="form-label">Profit Rate</label>
+                        <label className="form-label">Yearly Rate</label>
                         <input
                           type="number"
-                          name="profitrate"
-                          step=".01"
+                          name="rateyear"
+                          step="any"
+                          defaultValue={rate}
+                          placeholder="Enter profit rate"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                          onChange={(e) => setRate(e.target.value)}
+                        />
+                        {errors.yearrate && <span className="invalid">{errors.yearrate.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Financing Period ( Yearly )</label>
+                        <input
+                          type="number"
+                          name="years"
+                          step="any"
+                          defaultValue={years}
                           placeholder="Enter profit rate"
                           className="form-control"
                           ref={register({
                             required: "This field is required",
                           })}
                           onChange={(e) => changeRate(e)}
+                        />
+                        {errors.years && <span className="invalid">{errors.years.message}</span>}
+                      </FormGroup>
+                    </Col>
+                    <Col md="6">
+                      <FormGroup>
+                        <label className="form-label">Profit Rate</label>
+                        <input
+                          type="number"
+                          name="profitrate"
+                          step="any"
+                          placeholder="Enter profit rate"
+                          className="form-control"
+                          ref={register({
+                            required: "This field is required",
+                          })}
+                          defaultValue={profitrate}
                         />
                         {errors.profitrate && <span className="invalid">{errors.profitrate.message}</span>}
                       </FormGroup>
@@ -969,18 +998,14 @@ const InvoiceList = () => {
                         <label className="form-label">Profit Amount</label>
                         <input
                           type="number"
-                          step=".01"
+                          step="any"
                           name="profitamount"
-                          defaultValue={profitAmount}
+                          defaultValue={profitamount}
                           placeholder="Enter profit amount"
                           className="form-control"
                           ref={register({
                             required: "This field is required",
                           })}
-                          ChangeEvent={(e) => {
-                            setProfit((amount * e.target.value) / 100);
-                            setTotalAmount(amount + profitAmount);
-                          }}
                         />
                         {errors.profitamount && <span className="invalid">{errors.profitamount.message}</span>}
                       </FormGroup>
@@ -992,7 +1017,7 @@ const InvoiceList = () => {
                           type="number"
                           name="totalamount"
                           step=".01"
-                          defaultValue={totalAmount}
+                          defaultValue={totalamount}
                           placeholder="Enter total amount"
                           className="form-control"
                           ref={register({
@@ -1004,7 +1029,7 @@ const InvoiceList = () => {
                     </Col>
                     <Col md="6">
                       <FormGroup>
-                        <label className="form-label">Facility Period </label>
+                        <label className="form-label">Facility Period (In Moths) </label>
                         <input
                           type="number"
                           name="tenure"
@@ -1013,6 +1038,7 @@ const InvoiceList = () => {
                           ref={register({
                             required: "This field is required",
                           })}
+                          onChange={(e) => Changeinstallment(e)}
                         />
                         {errors.tenure && <span className="invalid">{errors.tenure.message}</span>}
                       </FormGroup>
@@ -1024,6 +1050,7 @@ const InvoiceList = () => {
                           type="number"
                           step=".01"
                           name="monthlyinstallment"
+                          defaultValue={installment}
                           placeholder="Enter monthly installment"
                           className="form-control"
                           ref={register({
@@ -1408,7 +1435,7 @@ const InvoiceList = () => {
                       {errors.id && <span className="invalid">{errors.id.message}</span>}
                     </FormGroup>
                   </Col>
-                  <Col md="12">
+                  <Col md="6">
                     <FormGroup>
                       <label className="form-label">File Type</label>
                       <div className="form-control-wrap">
@@ -1434,7 +1461,7 @@ const InvoiceList = () => {
                         <select
                           className="form-control"
                           name="purpose"
-                          defaultValue={purposeValue}
+                          defaultValue={formData.purpose}
                           onChange={(e) => setPurposeValue(e.target.value)}
                           ref={register({ required: "This field is required" })}
                         >
@@ -1472,18 +1499,126 @@ const InvoiceList = () => {
                   </Col>
                   <Col md="6">
                     <FormGroup>
-                      <label className="form-label">Amount</label>
+                      <label className="form-label">Customer Phone</label>
                       <input
-                        type="text"
-                        name="amount"
-                        defaultValue={formData.amount}
-                        placeholder="Enter amount"
+                        type="number"
+                        step="any"
+                        name="phone"
+                        defaultValue={formData.phone}
+                        placeholder="Enter Phone"
                         className="form-control"
                         ref={register({
                           required: "This field is required",
                         })}
                       />
-                      {errors.employmenttype && <span className="invalid">{errors.amount.message}</span>}
+                      {errors.phone && <span className="invalid">{errors.phone.message}</span>}
+                    </FormGroup>
+                  </Col>
+
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Amount</label>
+                      <input
+                        type="number"
+                        step="any"
+                        name="amount"
+                        placeholder="Enter amount"
+                        defaultValue={formData.amount}
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                        onChange={(e) => setAmount(e.target.value)}
+                      />
+                      {errors.amount && <span className="invalid">{errors.amount.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Years Rate (e.g)7.5</label>
+                      <input
+                        type="number"
+                        name="profitrate"
+                        step="any"
+                        defaultValue={formData.yearrate}
+                        placeholder="Enter profit rate"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                        onChange={(e) => setRate(e.target.value)}
+                      />
+                      {errors.profitrate && <span className="invalid">{errors.profitrate.message}</span>}
+                    </FormGroup>
+                  </Col>
+
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Financing Period ( Years e.g 3 years )</label>
+                      <input
+                        type="number"
+                        defaultValue={years}
+                        name="profitrate"
+                        step="any"
+                        placeholder="Enter profit rate"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                        onChange={(e) => changeRate(e)}
+                      />
+                      {errors.rate && <span className="invalid">{errors.rate.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Profit Rate</label>
+                      <input
+                        type="number"
+                        name="profitrate"
+                        step="any"
+                        placeholder="Enter profit rate"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                        defaultValue={formData.profitrate}
+                      />
+                      {errors.profitrate && <span className="invalid">{errors.profitrate.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Profit Amount</label>
+                      <input
+                        type="number"
+                        step="any"
+                        name="profitamount"
+                        defaultValue={profitamount}
+                        placeholder="Enter profit amount"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.profitamount && <span className="invalid">{errors.profitamount.message}</span>}
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label className="form-label">Total Amount</label>
+                      <input
+                        type="number"
+                        name="totalamount"
+                        step=".01"
+                        defaultValue={totalamount}
+                        placeholder="Enter total amount"
+                        className="form-control"
+                        ref={register({
+                          required: "This field is required",
+                        })}
+                      />
+                      {errors.totalamount && <span className="invalid">{errors.totalamount.message}</span>}
                     </FormGroup>
                   </Col>
                   <Col md="6">
@@ -1502,54 +1637,7 @@ const InvoiceList = () => {
                       {errors.tenure && <span className="invalid">{errors.tenure.message}</span>}
                     </FormGroup>
                   </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Profit Rate</label>
-                      <input
-                        type="text"
-                        name="profitrate"
-                        defaultValue={formData.profitrate}
-                        placeholder="Enter profit rate"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.position && <span className="invalid">{errors.profitrate.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Profit Amount</label>
-                      <input
-                        type="text"
-                        name="profitamount"
-                        defaultValue={formData.profitamount}
-                        placeholder="Enter profit amount"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.homeaddress && <span className="invalid">{errors.profitamount.message}</span>}
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label className="form-label">Total Amount</label>
-                      <input
-                        type="text"
-                        name="totalamount"
-                        defaultValue={formData.totalamount}
-                        placeholder="Enter total amount"
-                        className="form-control"
-                        ref={register({
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors.mobile && <span className="invalid">{errors.totalamount.message}</span>}
-                    </FormGroup>
-                  </Col>
+
                   <Col md="6">
                     <FormGroup>
                       <label className="form-label">Monthly Installment</label>

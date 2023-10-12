@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import axios from "axios";
 
 const instanceAxios = axios.create({
-  baseURL: "https://localhost:7015/api/",
+  baseURL: "/api/",
   headers: {
     accept: "application/json",
     "content-type": "application/json",
